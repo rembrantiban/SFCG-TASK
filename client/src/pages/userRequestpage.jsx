@@ -2,16 +2,16 @@ import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { FileText } from "lucide-react";
 import StaffHeader from "../component/staffheader/header";
-import WorkOrderRequestModal from "../component/modal/WorkOrderRequestModal";
+import { WorkOrderRequestModal} from "../component/modal/WorkOrderRequestModal";
 import { FilePlus } from "lucide-react";
 import UserRequest from "../component/userRequest/userRequest";
 
 const UserRequestPage = () => {
       const [isModalOpen, setIsModalOpen] = useState(false);
-    const handleSubmitRequest = (data) => {
-    console.log("NEW REQUEST DATA:", data);
-    setIsModalOpen(false);
-  };
+      const handleSubmitRequest = (data) => {
+      console.log("NEW REQUEST DATA:", data);
+      setIsModalOpen(false);
+    };
 
     const firstName = localStorage.getItem("userFirstName") || "Staff";
   return (
