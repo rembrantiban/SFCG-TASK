@@ -13,13 +13,23 @@ connectDb();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+const allowedOrigins = [
+  "http://localhost:5173",             
+  "https://sfcg-task.onrender.com",    
+];
 
 app.use(cors({
-  origin: "http://localhost:5173",
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    }
+    return callback(new Error("CORS not allowed"));
+  },
   credentials: true,
   methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
   allowedHeaders: ["Content-Type", "Authorization"],
 }));
+
 app.use(express.json());
 app.use(cookieParser());
 app.use("/api/auth", Router)
