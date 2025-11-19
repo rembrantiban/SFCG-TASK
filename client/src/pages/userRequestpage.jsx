@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { FileText } from "lucide-react";
 import StaffHeader from "../component/staffheader/header";
-import { WorkOrderRequestModal } from "../components/modal/WorkOrderRequestModal";
+import WorkOrderRequestModal from "../component/modal/workOrderRequestModal";
 import { FilePlus } from "lucide-react";
 import UserRequest from "../component/userRequest/userRequest";
 
