@@ -9,6 +9,22 @@ import axiosInstance from '../lib/axios.js';
 const Dashboard = () => {
   const [totalUsers, setTotalUsers] = useState(0);  
   const [totalRequests, setTotalRequests] = useState(0);
+    const [totalAssigned, setTotalAssigned] = useState(0);
+
+
+  useEffect(() => {
+  const fetchAssigned = async () => {
+    try {
+      const res = await axiosInstance.get("/assign/totalassigned");
+      setTotalAssigned(res.data.totalAssigned || 0);
+      console.log("Total Assigned:", res.data.totalAssigned);
+    } catch (error) {
+      console.warn("Error fetching assigned count:", error);
+    }
+  };
+
+  fetchAssigned();
+}, []);
 
  useEffect(() => {
   const fetchRequests = async () => {
@@ -82,7 +98,7 @@ useEffect(() => {
         totalUsers={totalUsers}
         totalTasks={35}
         totalRequest={totalRequests}
-        totalAssigned={14}
+        totalAssigned={totalAssigned}
       />
       </div>
 
