@@ -101,14 +101,11 @@ useEffect(() => {
         totalAssigned={totalAssigned}
       />
       </div>
-
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 px-20 mt-8 pb-4">
         <MetricsLineChart />
         <MetricsBarChart />
         <SkillsChart />
       </div>
-
-
     </div>
   )
 }
