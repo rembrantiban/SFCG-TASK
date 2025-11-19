@@ -140,3 +140,23 @@ export const getWeeklyMetrics = async (req, res) => {
     });
   }
 };
+
+export const getAssignStats = async (req, res) => {
+  try {
+    const totalAssigned = await assignModel.countDocuments();
+    const totalCompleted = await assignModel.countDocuments({ status: "Completed" });
+
+    res.status(200).json({
+      success: true,
+      totalAssigned,
+      totalCompleted,
+    });
+
+  } catch (error) {
+    console.error("Error fetching stats:", error);
+    res.status(500).json({
+      success: false,
+      message: "Server Error",
+    });
+  }
+};
