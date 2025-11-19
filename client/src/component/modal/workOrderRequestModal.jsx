@@ -32,7 +32,7 @@ const WorkOrderRequestModal = ({ isOpen, onClose }) => {
     try {
       setLoading(true);
       await axiosInstance.post("/request/create", payload, { withCredentials: true });
-
+      window.location.reload()
       toast.success("Request submitted successfully!");
 
       setFormData({

@@ -5,9 +5,7 @@ import { toast } from "react-hot-toast";
 
 const RegisterModal = ({ isOpen, onClose, onSuccess }) => {
 
-  /* -----------------------------
-      ALL HOOKS MUST BE HERE
-  ------------------------------ */
+  
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -29,7 +27,6 @@ const RegisterModal = ({ isOpen, onClose, onSuccess }) => {
   const idRegex = /^\d{3}-\d{4}$/;
   const isIdValid = idRegex.test(formData.idNumber);
 
-  /* fetch departments ONCE */
   useEffect(() => {
     const loadDepartments = async () => {
       try {
