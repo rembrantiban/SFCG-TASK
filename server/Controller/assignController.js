@@ -143,9 +143,7 @@ export const getWeeklyMetrics = async (req, res) => {
 
 export const getAssignStats = async (req, res) => {
   try {
-    const totalAssigned = await assignModel.countDocuments();
-    const totalCompleted = await assignModel.countDocuments({ status: "Completed" });
-
+    const totalAssigned = await AssignModel.countDocuments();
     res.status(200).json({
       success: true,
       totalAssigned,

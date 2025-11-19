@@ -380,7 +380,7 @@ const UserTable = () => {
                 <span className="truncate max-w-[60%] text-right">{selectedUser.idNumber}</span>
               </div>
               <div className="flex items-center justify-between bg-gray-50 dark:bg-gray-900/40 p-3 rounded-lg hover:bg-blue-50 dark:hover:bg-gray-900 transition">
-                <span className="font-medium text-gray-600 dark:text-gray-400">📞 Phone</span>
+                <span className="font-medium text-gray-600 dark:text-gray-400">🏢 Department</span>
                 <span className="truncate max-w-[60%] text-right">{selectedUser.department}</span>
               </div>
             </div>

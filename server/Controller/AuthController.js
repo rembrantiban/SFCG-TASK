@@ -6,7 +6,6 @@ import bcrypt from "bcryptjs";
 export const register = async (req, res) => {
   const { firstName, lastName, idNumber, password, role, department, category } = req.body;
 
-  // Validate required fields
   if (!firstName || !lastName || !idNumber || !password || !department || !category) {
     return res.status(400).json({ message: "All fields are required" });
   }
@@ -301,42 +300,81 @@ export const deleteUser = async (req, res) => {
 export const updateUser = async (req, res) => {
   try {
     const { id } = req.params;
-    const { firstName, lastName, idNumber, password, role, isApproved, department } = req.body;
+    const {
+      firstName,
+      lastName,
+      idNumber,
+      password,
+      role,
+      isApproved,
+      department,
+      category,
+    } = req.body;
 
     const updateData = {};
 
+    // VALIDATIONS
+    if (idNumber) {
+      const idNumberRegex = /^\d{3}-\d{4}$/;
+      if (!idNumberRegex.test(idNumber)) {
+        return res.status(400).json({
+          success: false,
+          message: "Invalid ID Number format (expected ###-####)",
+        });
+      }
+      updateData.idNumber = idNumber;
+    }
+
+    // UPDATE FIELDS IF PROVIDED
     if (firstName) updateData.firstName = firstName;
     if (lastName) updateData.lastName = lastName;
 
-    if (idNumber) updateData.idNumber = idNumber;
-
     if (department) updateData.department = department;
+
+    if (category) updateData.category = category;
 
     if (typeof isApproved === "boolean") updateData.isApproved = isApproved;
 
-    if (role) updateData.role = role;
+    if (role && role.trim() !== "") updateData.role = role.trim();
 
     if (password && password.trim() !== "") {
+      if (password.length < 10) {
+        return res.status(400).json({
+          success: false,
+          message: "Password must be at least 10 characters",
+        });
+      }
+
       const hashedPassword = await bcrypt.hash(password, 10);
       updateData.password = hashedPassword;
     }
 
+    // UPDATE USER
     const updatedUser = await userModel.findByIdAndUpdate(id, updateData, {
       new: true,
       runValidators: true,
     });
 
     if (!updatedUser) {
-      return res.status(404).json({ 
+      return res.status(404).json({
         success: false,
-        message: "User not found" 
+        message: "User not found",
       });
     }
 
     return res.status(200).json({
       success: true,
       message: "User updated successfully",
-      user: updatedUser,
+      user: {
+        id: updatedUser._id,
+        firstName: updatedUser.firstName,
+        lastName: updatedUser.lastName,
+        idNumber: updatedUser.idNumber,
+        department: updatedUser.department,
+        category: updatedUser.category,
+        role: updatedUser.role,
+        isApproved: updatedUser.isApproved,
+      },
     });
 
   } catch (error) {

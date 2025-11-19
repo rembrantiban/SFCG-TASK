@@ -96,7 +96,6 @@ useEffect(() => {
       <div className='px-20 w-full'>
         <StatsCards
         totalUsers={totalUsers}
-        totalTasks={35}
         totalRequest={totalRequests}
         totalAssigned={totalAssigned}
       />
