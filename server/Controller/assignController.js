@@ -70,7 +70,7 @@ export const getUserTasks = async (req, res) => {
     }
 
     const tasks = await AssignModel.find({ assign: userId })
-      .populate("requestId")
+      .populate("requestId", "firstname lastName department")
       .populate("assign", "firstName lastName")
       .populate("createdBy", "firstName lastName");
 
@@ -144,6 +144,9 @@ export const getWeeklyMetrics = async (req, res) => {
 export const getAssignStats = async (req, res) => {
   try {
     const totalAssigned = await AssignModel.countDocuments();
+
+    const totalCompleted = await AssignModel.countDocuments({ status: "Completed" });
+
     res.status(200).json({
       success: true,
       totalAssigned,
@@ -155,6 +158,7 @@ export const getAssignStats = async (req, res) => {
     res.status(500).json({
       success: false,
       message: "Server Error",
+      error: error.message,
     });
   }
 };
