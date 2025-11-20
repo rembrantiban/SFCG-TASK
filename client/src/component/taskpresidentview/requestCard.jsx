@@ -69,15 +69,13 @@ const RequestCard = ({ data = {}, onViewDetails, onAssign }) => {
 
       {/* Assign Button */}
       {data?.markAsApproved && (
-  <button
-    onClick={onAssign}
-    className="w-full mt-2 flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 text-white py-2 rounded-lg text-sm font-medium transition"
-  >
-    Assign Task
-  </button>
-)}
-
-
+          <button
+            onClick={onAssign}
+            className="w-full mt-2 flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 text-white py-2 rounded-lg text-sm font-medium transition"
+          >
+            Assign Task
+          </button>
+        )}
     </div>
   );
 };

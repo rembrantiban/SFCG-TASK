@@ -104,7 +104,9 @@ export const totalRequestCount = async (req, res) => {
 export const getAllUnnotedRequests = async (req, res) => {
   try {
     const requests = await requestModel
-      .find()
+      .find({
+        $or: [{ approvedBy: null }, { approvedBy: { $exists: false } }]
+      })
       .populate("requestedBy", "firstName lastName department")
       .populate("approvedBy", "firstName lastName")
       .populate("notedBy", "firstName lastName")
@@ -127,9 +129,7 @@ export const getAllUnnotedRequests = async (req, res) => {
 export const getAllUnAapprovedRequests = async (req, res) => {
   try {
     const requests = await requestModel
-      .find({
-        $or: [{ approvedBy: null }, { approvedBy: { $exists: false } }]
-      })
+      .find()
       .populate("requestedBy", "firstName lastName department")
       .populate("approvedBy", "firstName lastName")
       .populate("notedBy", "firstName lastName")

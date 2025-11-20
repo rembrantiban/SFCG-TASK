@@ -102,66 +102,88 @@ const DepartmentList = () => {
                     </thead>
 
                     <tbody className="divide-y dark:divide-gray-700">
-                        {loading ? (
-                            <tr>
-                                <td colSpan="3" className="py-4 text-center text-gray-500">
-                                    Loading...
-                                </td>
-                            </tr>
-                        ) : filteredData.length === 0 ? (
-                            <tr>
-                                <td colSpan="3" className="py-4 text-center text-gray-500">
-                                    No data found
-                                </td>
-                            </tr>
+    {loading ? (
+        <tr>
+            <td colSpan="3" className="py-4 text-center text-gray-500">
+                Loading...
+            </td>
+        </tr>
+    ) : filteredData.length === 0 ? (
+        <tr>
+            <td colSpan="3" className="py-4 text-center text-gray-500">
+                No data found
+            </td>
+        </tr>
+    ) : (
+        filteredData.map((dept, index) => (
+            <React.Fragment key={dept._id}>
+                {/* MAIN ROW */}
+                <tr className="hover:bg-gray-100 dark:hover:bg-gray-700 transition">
+                    <td className="px-4 py-3">{index + 1}</td>
+                    <td className="px-4 py-3 font-medium capitalize">
+                        {dept.departmentName}
+                    </td>
+
+                    <td className="px-4 py-3 flex justify-center gap-2">
+                        <button
+                            onClick={() => {
+                                setSelectedDeptForCategory(dept);
+                                setAddCategoryModalOpen(true);
+                            }}
+                            className="px-3 py-1.5 rounded-lg bg-blue-500 hover:bg-blue-600 text-white text-xs font-medium flex items-center gap-1"
+                        >
+                            <Plus size={14} /> Category
+                        </button>
+
+                        <button
+                            onClick={() => {
+                                setSelectedDept(dept);
+                                setEditModalOpen(true);
+                            }}
+                            className="px-3 py-1.5 rounded-lg bg-green-500 hover:bg-green-600 text-white text-xs font-medium flex items-center gap-1"
+                        >
+                            <Edit3 size={14} /> Edit
+                        </button>
+
+                        <button
+                            onClick={() => {
+                                setSelectedDept(dept);
+                                setDeleteModalOpen(true);
+                            }}
+                            className="px-3 py-1.5 rounded-lg bg-red-500 hover:bg-red-600 text-white text-xs font-medium flex items-center gap-1"
+                        >
+                            <Trash2 size={14} /> Delete
+                        </button>
+                    </td>
+                </tr>
+
+                {/* CATEGORY ROW */}
+                <tr className="bg-gray-50 dark:bg-gray-800">
+                    <td colSpan="3" className="px-6 py-3 text-sm text-gray-600 dark:text-gray-300">
+                        <strong className="text-gray-800 dark:text-white">Categories:</strong>
+                        {dept.categories.length > 0 ? (
+                            <div className="mt-1 flex flex-wrap gap-2">
+                                {dept.categories.map((cat, i) => (
+                                    <span
+                                        key={i}
+                                        className="bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 px-2 py-1 rounded-lg text-xs"
+                                    >
+                                        {cat}
+                                    </span>
+                                ))}
+                            </div>
                         ) : (
-                            filteredData.map((dept, index) => (
-                                <tr
-                                    key={dept._id}
-                                    className="hover:bg-gray-100 dark:hover:bg-gray-700 transition"
-                                >
-                                    <td className="px-4 py-3">{index + 1}</td>
-                                    <td className="px-4 py-3 font-medium capitalize">
-                                        {dept.departmentName}
-                                    </td>
-
-                                    <td className="px-4 py-3 flex justify-center gap-2">
-                                        <button
-                                            onClick={() => {
-                                                setSelectedDeptForCategory(dept);
-                                                setAddCategoryModalOpen(true);
-                                            }}
-                                            className="px-3 py-1.5 rounded-lg bg-blue-500 hover:bg-blue-600 text-white text-xs font-medium flex items-center gap-1"
-                                        >
-                                            <Plus size={14} /> Category
-                                        </button>
-
-
-                                        <button
-                                            onClick={() => {
-                                                setSelectedDept(dept);
-                                                setEditModalOpen(true);
-                                            }}
-                                            className="px-3 py-1.5 rounded-lg bg-green-500 hover:bg-green-600 text-white text-xs font-medium flex items-center gap-1"
-                                        >
-                                            <Edit3 size={14} /> Edit
-                                        </button>
-
-
-                                        <button
-                                        onClick={() => {
-                                            setSelectedDept(dept);
-                                            setDeleteModalOpen(true);
-                                        }}
-                                        className="px-3 py-1.5 rounded-lg bg-red-500 hover:bg-red-600 text-white text-xs font-medium flex items-center gap-1"
-                                        >
-                                        <Trash2 size={14} /> Delete
-                                        </button>
-                                    </td>
-                                </tr>
-                            ))
+                            <p className="text-gray-500 dark:text-gray-400 mt-1">
+                                No categories yet.
+                            </p>
                         )}
-                    </tbody>
+                    </td>
+                </tr>
+            </React.Fragment>
+        ))
+    )}
+</tbody>
+
                 </table>
             </div>
 

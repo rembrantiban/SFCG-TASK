@@ -19,7 +19,7 @@ const UnnotedRequests = () => {
 
   const fetchUnnotedRequests = async () => {
     try {
-      const res = await axiosInstance.get("/request/getallunoted");
+      const res = await axiosInstance.get("/request/getallunapproved");
       if (res.data.success) setRequests(res.data.requests);
     } catch (error) {
       console.error("Error fetching unnoted requests:", error);
