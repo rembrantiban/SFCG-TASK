@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { ClipboardList, FilePlus, Eye, LogOut, LayoutDashboard, Menu, X } from "lucide-react";
+import { ClipboardList, FilePlus, Eye, LogOut, LayoutDashboard, Menu, X , UserRoundMinus } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -61,10 +61,11 @@ const StaffHeader = ({ name = "Staff" }) => {
 
       {/* Desktop Menu */}
       <div className="hidden sm:grid grid-cols-4 gap-3">
-        <ActionCard iconBg="bg-purple-500" icon={<LayoutDashboard size={18} />} link="/staff/dashboard" text="Dashboard" />
+        <ActionCard iconBg="bg-purple-500" icon={<LayoutDashboard size={18} />} link="/staffdashboard" text="Dashboard" />
         <ActionCard iconBg="bg-amber-500" icon={<ClipboardList size={18} />} link="/todowork" text="To-Do Work" />
-        <ActionCard iconBg="bg-blue-500" icon={<FilePlus size={18} />} link="/staff/request" text="Make a Request" />
         <ActionCard iconBg="bg-green-500" icon={<Eye size={18} />} link="/userRequest" text="View Request" />
+        <ActionCard iconBg="bg-blue-500" icon={<UserRoundMinus size={18} />} link="/user/profile" text="Profile" />
+
       </div>
 
       {/* Mobile Dropdown */}
@@ -76,10 +77,10 @@ const StaffHeader = ({ name = "Staff" }) => {
             exit={{ opacity: 0, height: 0 }}
             className="sm:hidden grid grid-cols-1 gap-3 mt-2"
           >
-            <ActionCard iconBg="bg-purple-500" icon={<LayoutDashboard size={18} />} link="/staff/dashboard" text="Dashboard" full />
+            <ActionCard iconBg="bg-purple-500" icon={<LayoutDashboard size={18} />} link="/staffdashboard" text="Dashboard" full />
             <ActionCard iconBg="bg-amber-500" icon={<ClipboardList size={18} />} link="/todowork" text="To-Do Work" full />
-            <ActionCard iconBg="bg-blue-500" icon={<FilePlus size={18} />} link="/staff/request" text="Make a Request" full />
             <ActionCard iconBg="bg-green-500" icon={<Eye size={18} />} link="/staff/request/view" text="View Request" full />
+            <ActionCard iconBg="bg-blue-500" icon={<UserRoundMinus size={18} />} link="/user/profile  " text="Profile" full />
 
             <motion.div
               whileHover={{ scale: 1.05 }}

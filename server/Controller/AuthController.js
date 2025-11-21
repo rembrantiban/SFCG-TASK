@@ -385,3 +385,119 @@ export const updateUser = async (req, res) => {
     });
   }
 };
+
+
+export const updateAdminProfile = async (req, res) => {
+  try {
+    const adminId = req.params.id;
+    let updates = { ...req.body };
+
+    delete updates.department;
+    delete updates.category;
+
+    if (updates.password) {
+      const salt = await bcrypt.genSalt(10);
+      updates.password = await bcrypt.hash(updates.password, salt);
+    }
+
+    const admin = await userModel.findById(adminId);
+    if (!admin) {
+      return res.status(404).json({
+        success: false,
+        message: "Admin not found",
+      });
+    }
+
+    const updatedAdmin = await userModel.findByIdAndUpdate(
+      adminId,
+      updates,
+      { new: true }
+    ).select("-password");
+
+    return res.status(200).json({
+      success: true,
+      message: "Admin profile updated successfully",
+      user: updatedAdmin,
+    });
+
+  } catch (error) {
+    console.error("Update Admin Error:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Server error updating admin profile",
+    });
+  }
+};
+
+
+
+export const getUserById = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const user = await userModel.findById(id).select("-password");
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      user,
+    });
+
+  } catch (err) {
+    console.error("getUserById error:", err);
+    return res.status(500).json({
+      success: false,
+      message: "Server error while fetching user",
+    });
+  }
+};
+
+
+
+
+export const updateUserProfile = async (req, res) => {
+  try {
+    const userId = req.params.id;
+
+    let updates = { ...req.body };
+
+    delete updates.role;
+    delete updates.idNumber;
+
+    if (updates.password) {
+      const salt = await bcrypt.genSalt(10);
+      updates.password = await bcrypt.hash(updates.password, salt);
+    }
+
+    const user = await userModel.findById(userId);
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    const updatedUser = await userModel
+      .findByIdAndUpdate(userId, updates, { new: true })
+      .select("-password");
+
+    return res.status(200).json({
+      success: true,
+      message: "User updated successfully",
+      user: updatedUser,
+    });
+
+  } catch (error) {
+    console.error("Update User Error:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Server error updating user",
+    });
+  }
+};

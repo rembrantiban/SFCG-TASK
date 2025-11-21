@@ -7,6 +7,8 @@ import {
      deleteUser,
      totalUsersCount,
      updateUser,
+     updateAdminProfile,
+     getUserById,
      
     } from "../Controller/AuthController.js";
 import express from "express"
@@ -21,4 +23,7 @@ const Router = express.Router()
     Router.delete("/delete/:id", deleteUser)
     Router.get("/totaluserscount", totalUsersCount )
     Router.put("/update/:id", updateUser)
+    Router.put("/adminupdate/:id", updateAdminProfile);
+    Router.get("/getuser/:id", getUserById);
+
 export default Router

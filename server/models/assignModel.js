@@ -13,8 +13,8 @@ const assignSchema = new mongoose.Schema({
 
   status: {   
     type: String,
-    enum: ['In Progress', 'Pending', 'Completed'],
-    default: 'In Progress',
+    enum: ['Pending', 'In Progress', 'Completed'],
+    default: 'Pending',
     required: true,
   },
 

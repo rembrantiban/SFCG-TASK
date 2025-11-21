@@ -1,6 +1,6 @@
 import React from "react";
 import { ChevronLeft } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { motion } from "framer-motion";
 
 const Header = ({ title, subtitle, showBack = false, actions }) => {
@@ -60,7 +60,7 @@ const Header = ({ title, subtitle, showBack = false, actions }) => {
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.35 }}
           >
-            {actions}
+            <Link to="/adminprofile">{actions}</Link>
           </motion.div>
         )}
       </div>

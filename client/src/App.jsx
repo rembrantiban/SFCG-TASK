@@ -15,12 +15,16 @@ import Addtask from "./pages/addtask.jsx";
 import RequestCoordinator from "./pages/taskCoordinator/requestCoordinator.jsx";
 import RequestCollege from "./pages/collegePresident/requestCollege.jsx"
 import Todoworks from "./pages/todoworks.jsx";
+import AdminProfile from "./pages/adminProfile.jsx";
+import UserProfile from "./pages/userProfile.jsx";
+import AssignedTaskPage from "./pages/assignTaskPage.jsx";
+import AllRequest from "./pages/allreaquest.jsx";
 
 function App() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const location = useLocation();
 
-  const hideSidebarRoutes = ["/", "/register", "/about", "/staffdashboard", "/userRequest", "/request/taskcoordinator", "/request/taskpresident", "/todowork"]; 
+  const hideSidebarRoutes = ["/", "/register", "/about", "/staffdashboard", "/userRequest", "/request/taskcoordinator", "/request/taskpresident", "/todowork", "/adminprofile", "/user/profile", ]; 
 
   const shouldShowSidebar = !hideSidebarRoutes.includes(location.pathname);
 
@@ -50,6 +54,10 @@ function App() {
           <Route path="/request/taskcoordinator" element={<RequestCoordinator />} />
           <Route path="/request/taskpresident" element={<RequestCollege />} />
           <Route path="/todowork" element={<Todoworks />} />
+          <Route path="adminprofile" element={<AdminProfile />} />
+          <Route path="/user/profile" element={<UserProfile />} />
+          <Route path="/assignpage" element={<AssignedTaskPage />} />          
+          <Route path="/allrequest" element={<AllRequest />} />
         </Routes>
       </div>
     </div>

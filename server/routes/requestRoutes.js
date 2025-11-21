@@ -3,9 +3,12 @@ import { createRequest,
          getMyRequests,
          totalRequestCount,
          getAllUnnotedRequests,
-         getAllUnAapprovedRequests,
+         getAllUnapprovedRequests,
          markAsNoted,
          markAsApproved,
+         updateRequestRejectStatus,
+         getAllRequests,
+         
  } from "../Controller/requestController.js";
 import {
      verifyToken,
@@ -18,9 +21,13 @@ requestRouter.post("/create", verifyToken, createRequest);
 requestRouter.get("/my-requests", verifyToken, getMyRequests);
 requestRouter.get("/count", totalRequestCount )
 requestRouter.get("/getallunoted", getAllUnnotedRequests)
-requestRouter.get("/getallunapproved", getAllUnAapprovedRequests)
+requestRouter.get("/getallunapproved", getAllUnapprovedRequests)
 requestRouter.put("/noted/:id", verifyToken, markAsNoted)
 requestRouter.put("/markAsApproved/:id", verifyToken, markAsApproved)
+requestRouter.put("/update-reject/:requestId", updateRequestRejectStatus);
+requestRouter.get("/all", getAllRequests);
+
+
 
 
 export default requestRouter;

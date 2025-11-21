@@ -19,7 +19,6 @@ const RequestDetailsModal = ({ request, onClose, refreshData }) => {
     });
   };
 
-  // ✔️ Mark as Approved
   const handleApproved = async () => {
     try {
       const res = await axiosInstance.put(`/request/markAsApproved/${request._id}`);

@@ -1,5 +1,6 @@
 import requestModel from "../models/requestModel.js";
 import userModel from "../models/userModel.js";
+import AssignModel from "../models/assignModel.js";
 
 export const createRequest = async (req, res) => {
   try {
@@ -59,6 +60,7 @@ export const createRequest = async (req, res) => {
     });
   }
 };
+
 
 export const getMyRequests = async (req, res) => {
   try {
@@ -126,7 +128,7 @@ export const getAllUnnotedRequests = async (req, res) => {
   }
 };
 
-export const getAllUnAapprovedRequests = async (req, res) => {
+export const getAllUnapprovedRequests = async (req, res) => {
   try {
     const requests = await requestModel
       .find()
@@ -135,19 +137,28 @@ export const getAllUnAapprovedRequests = async (req, res) => {
       .populate("notedBy", "firstName lastName")
       .sort({ createdAt: -1 });
 
+      const requestsWithAssignStatus = await Promise.all(
+      requests.map(async (req) => {
+        const assign = await AssignModel.findOne({ requestId: req._id });
+
+        return {
+          ...req.toObject(),
+          assignedStatus: assign?.assignedStatus || "Pending",
+          rejectReason: assign?.rejectReason || "",
+        };
+      })
+    );
+
     return res.status(200).json({
       success: true,
-      message: "Unnoted requests fetched successfully",
-      requests,
+      requests: requestsWithAssignStatus,
     });
   } catch (error) {
-    console.error("Fetch unnoted requests error:", error);
-    return res.status(500).json({
-      success: false,
-      message: "Server error",
-    });
+    console.error("getAllUnapprovedRequests error:", error);
+    return res.status(500).json({ success: false, message: "Server error" });
   }
 };
+
 
 export const markAsNoted = async (req, res) => {
   try {
@@ -196,8 +207,8 @@ export const markAsNoted = async (req, res) => {
 
 export const markAsApproved = async (req, res) => {
   try {
-    const { id } = req.params;         
-    const userId = req.user.id;       
+    const { id } = req.params; // requestId
+    const userId = req.user.id; // approver ID
 
     if (!userId) {
       return res.status(401).json({
@@ -206,15 +217,17 @@ export const markAsApproved = async (req, res) => {
       });
     }
 
-    const updatedRequest = await requestModel.findByIdAndUpdate(
-      id,
-      {
-        approvedBy: userId,
-        approvedDate: Date.now(),
-        status: "Approved"
-      },
-      { new: true }
-    ).populate("requestedBy", "firstName lastName department");
+    const updatedRequest = await requestModel
+      .findByIdAndUpdate(
+        id,
+        {
+          approvedBy: userId,
+          approvedDate: new Date(),
+          status: "Approved",
+        }, 
+        { new: true }
+      )
+      .populate("requestedBy", "firstName lastName department");
 
     if (!updatedRequest) {
       return res.status(404).json({
@@ -228,12 +241,76 @@ export const markAsApproved = async (req, res) => {
       message: "Request successfully marked as Approved",
       request: updatedRequest,
     });
-
   } catch (error) {
-    console.log("NOTED ERROR:", error);
+    console.log("APPROVE ERROR:", error);
     return res.status(500).json({
       success: false,
       message: "Server error while updating request",
+    });
+  }
+};
+
+
+
+export const updateRequestRejectStatus = async (req, res) => {
+  try {
+    const { requestId } = req.params;
+    const { isReject } = req.body; 
+
+    if (typeof isReject !== "boolean") {
+      return res.status(400).json({
+        success: false,
+        message: "isReject must be true or false",
+      });
+    }
+
+    const updated = await requestModel.findByIdAndUpdate(
+      requestId,
+      { isReject },
+      { new: true }
+    );
+
+    if (!updated) {
+      return res.status(404).json({
+        success: false,
+        message: "Request not found",
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "isReject updated successfully",
+      request: updated,
+    });
+
+  } catch (err) {
+    console.error("updateRequestRejectStatus error:", err);
+    return res.status(500).json({
+      success: false,
+      message: "Server error",
+    });
+  }
+};
+
+export const getAllRequests = async (req, res) => {
+  try {
+    const requests = await requestModel
+      .find()
+      .sort({ createdAt: -1 }) 
+      .populate("requestedBy", "firstName lastName department category role")
+      .populate("approvedBy", "firstName lastName")
+      .populate("notedBy", "firstName lastName");
+
+    return res.status(200).json({
+      success: true,
+      requests,
+    });
+
+  } catch (err) {
+    console.error("Get All Requests Error:", err);
+    return res.status(500).json({
+      success: false,
+      message: "Server error while fetching requests",
     });
   }
 };

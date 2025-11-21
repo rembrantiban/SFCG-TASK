@@ -9,7 +9,6 @@ const userSchema = new mongoose.Schema(
     department: {type: String, required: true},
     category :{ type: String, required: true},
     role: { type: String,  required: true },
-    image: { type: String },
     isApproved: { default: false, type: Boolean}
   },
   { timestamps: true } 

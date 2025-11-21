@@ -57,6 +57,66 @@ export const assignToUser = async (req, res) => {
   }
 };
 
+export const reassignTask = async (req, res) => {
+  try {
+    const { id } = req.params;        
+    const { newUserId } = req.body;
+
+    if (!newUserId) {
+      return res.status(400).json({
+        success: false,
+        message: "newUserId is required",
+      });
+    }
+
+    const task = await AssignModel.findById(id).populate("requestId");
+    if (!task) {
+      return res.status(404).json({
+        success: false,
+        message: "Assigned task not found",
+      });
+    }
+
+    // Fetch user
+    const user = await UserModel.findById(newUserId);
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    if (user.category !== task.requestId.category) {
+      return res.status(400).json({
+        success: false,
+        message: `User category mismatch. This task requires "${task.requestId.category}".`,
+      });
+    }
+
+    task.assign = newUserId;
+    task.assignedStatus = "Pending";
+    task.rejectReason = "";
+    task.startDate = null;
+
+    await task.save();
+
+    return res.status(200).json({
+      success: true,
+      message: "Task reassigned successfully!",
+      task,
+    });
+
+  } catch (error) {
+    console.error("Reassign error:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Server error while reassigning task",
+    });
+  }
+};
+
+
+
 
 export const getUserTasks = async (req, res) => {
   try {
@@ -69,8 +129,17 @@ export const getUserTasks = async (req, res) => {
       });
     }
 
-    const tasks = await AssignModel.find({ assign: userId })
-      .populate("requestId", "firstname lastName department")
+    const tasks = await AssignModel.find({ assign: userId,
+         assignedStatus: { $ne: "Rejected" } })
+      .populate({
+        path: "requestId",
+        select:
+          "taskType category requestDetails urgency requestedDate approvedDate approvedDate notedDate requestedBy",
+        populate: {
+          path: "requestedBy",
+          select: "firstName lastName",
+        },
+      })
       .populate("assign", "firstName lastName")
       .populate("createdBy", "firstName lastName");
 
@@ -159,6 +228,185 @@ export const getAssignStats = async (req, res) => {
       success: false,
       message: "Server Error",
       error: error.message,
+    });
+  }
+};
+
+export const acceptAssignedTask = async (req, res) => {
+  try {
+    const { taskId } = req.params;
+
+    const updated = await AssignModel.findByIdAndUpdate(
+      taskId,
+      {
+        assignedStatus: "Accepted",
+        startDate: new Date(),
+        rejectReason: ""
+      },
+      { new: true }
+    );
+
+    if (!updated) {
+      return res.status(404).json({
+        success: false,
+        message: "Task not found",
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "Task accepted successfully",
+      task: updated,
+    });
+  } catch (err) {
+    console.error("acceptAssignedTask error:", err);
+    return res.status(500).json({
+      success: false,
+      message: "Server error",
+    });
+  }
+};
+
+
+export const rejectAssignedTask = async (req, res) => {
+  try {
+    const { taskId } = req.params;
+    const { rejectReason } = req.body;
+
+    if (!rejectReason || rejectReason.trim() === "") {
+      return res.status(400).json({
+        success: false,
+        message: "Reject reason is required",
+      });
+    }
+
+    const updated = await AssignModel.findByIdAndUpdate(
+      taskId,
+      {
+        assignedStatus: "Rejected",
+        rejectReason,
+        endDate: new Date(), 
+      },
+      { new: true }
+    );
+
+    if (!updated) {
+      return res.status(404).json({
+        success: false,
+        message: "Task not found",
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "Task rejected successfully",
+      task: updated,
+    });
+  } catch (err) {
+    console.error("rejectAssignedTask error:", err);
+    return res.status(500).json({
+      success: false,
+      message: "Server error",
+    });
+  }
+};
+
+
+export const getTaskByRequest = async (req, res) => {
+  try {
+    const { requestId } = req.params;
+
+    const task = await AssignModel.findOne({ requestId })
+      .populate("requestId");
+
+    if (!task) {
+      return res.status(404).json({
+        success: false,
+        message: "No assigned task found for this request",
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      task,
+    });
+  } catch (err) {
+    console.error("getTaskByRequest error:", err);
+    return res.status(500).json({
+      success: false,
+      message: "Server error",
+    });
+  }
+};
+
+export const getAllAssignedTasks = async (req, res) => {
+  try {
+    const tasks = await AssignModel
+      .find()
+      .populate({
+        path: "requestId",
+        select: "taskType category requestDetails urgency requestedBy",
+        populate: {
+          path: "requestedBy",
+          select: "firstName lastName",
+        },
+      })
+      .populate("assign", "firstName lastName department category")
+      .populate("createdBy", "firstName lastName");
+
+    return res.status(200).json({
+      success: true,
+      tasks,
+    });
+
+  } catch (error) {
+    console.error("Get Assigned Tasks Error:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Server error fetching assigned tasks",
+    });
+  }
+};
+
+export const updateTaskStatus = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { status } = req.body;
+
+    console.log("STATUS RECEIVED:", status);
+    console.log("TASK ID RECEIVED:", id);
+
+    if (!["Pending", "In Progress", "Completed"].includes(status)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid status value",
+      });
+    }
+
+    const task = await assignModel.findByIdAndUpdate(
+      id,
+      { status },
+      { new: true }
+    );
+
+    if (!task) {
+      return res.status(404).json({
+        success: false,
+        message: "Task not found",
+      });
+    }
+
+    return res.json({
+      success: true,
+      message: "Task status updated successfully",
+      task,
+    });
+
+  } catch (error) {
+    console.error("UPDATE STATUS ERROR:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Server error updating task status",
     });
   }
 };

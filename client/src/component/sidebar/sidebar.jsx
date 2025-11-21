@@ -36,8 +36,8 @@ export default function Sidebar() {
   ];
 
   const taskItems = [
-    { name: "Task List", path: "/tasks/view", icon: <ListChecks size={17} /> },
-    { name: "Add Task", path: "/addtask", icon: <PlusCircle size={17} /> },
+    { name: "Task List", path: "/assignpage", icon: <ListChecks size={17} /> },
+    { name: "View Task Requests", path: "/allrequest", icon: <Archive size={17} /> },
   ];
 
   const recordItems = [

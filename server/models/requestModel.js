@@ -20,6 +20,11 @@ const requestSchema = new mongoose.Schema(
       trim: true,
     },
 
+    isReject:{
+        type:Boolean,
+        default: false,
+    },
+
     requestDetails: {
       type: String,
       default: "",
