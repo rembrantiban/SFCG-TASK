@@ -12,6 +12,8 @@ import { assignToUser,
         saveProofUrls,
         uploadMultipleProofs,
         getAllAssigned,
+        getMonthlyTaskChart,
+        getTaskStats,
     } from "../Controller/assignController.js";
 import { upload } from "../lib/multer.js";
 
@@ -30,6 +32,9 @@ router.put("/status/:id", updateTaskStatus);
 router.post("/upload", upload.array("images", 10),uploadMultipleProofs);
 router.put("/proof/:taskId", saveProofUrls);
 router.get("/assignlist", getAllAssigned);
+router.get("/stats/:userId", getTaskStats);
+router.get("/monthly/:userId", getMonthlyTaskChart);
+
 
 
 export default router;

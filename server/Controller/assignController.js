@@ -2,6 +2,7 @@ import UserModel from "../models/userModel.js";
 import AssignModel from "../models/assignModel.js";
 import RequestModel from "../models/requestModel.js";
 import cloudinary from "../config/cloudinary.js"
+import mongoose from "mongoose";
 
 export const assignToUser = async (req, res) => {
   try {
@@ -515,6 +516,118 @@ export const getAllAssigned = async (req, res) => {
     return res.status(500).json({
       success: false,
       message: "Server error",
+    });
+  }
+};
+
+export const getAllCompletedAssigned = async (req, res) => {
+  try {
+    const completedTasks = await AssignModel
+      .find({ status: "Completed" })
+      .populate("requestId")
+      .populate("userId")
+      .populate("assign")
+      .populate("createdBy");
+
+    return res.status(200).json({
+      success: true,
+      message: "Completed tasks fetched successfully",
+      tasks: completedTasks,
+    });
+
+  } catch (error) {
+    console.error("Error fetching completed tasks:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
+    });
+  }
+};
+
+export const getTaskStats = async (req, res) => {
+  try {
+    const { userId } = req.params;
+
+    if (!mongoose.Types.ObjectId.isValid(userId)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid user ID"
+      });
+    }
+
+    const objectId = new mongoose.Types.ObjectId(userId);
+
+    const assigned = await AssignModel.countDocuments({ userId: objectId });
+    const completed = await AssignModel.countDocuments({ userId: objectId, status: "Completed" });
+    const pending = await AssignModel.countDocuments({
+      userId: objectId,
+      status: { $in: ["Pending", "In Progress"] }
+    });
+
+    res.status(200).json({
+      success: true,
+      stats: { assigned, completed, pending }
+    });
+
+  } catch (error) {
+    console.error("Error getting task stats:", error);
+    res.status(500).json({
+      success: false,
+      message: "Internal Server Error"
+    });
+  }
+};
+
+export const getMonthlyTaskChart = async (req, res) => {
+  try {
+    const { userId } = req.params;
+
+    if (!mongoose.Types.ObjectId.isValid(userId)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid user ID"
+      });
+    }
+
+    const objectId = new mongoose.Types.ObjectId(userId);
+
+    const result = await AssignModel.aggregate([
+      { $match: { userId: objectId } },
+
+      {
+        $group: {
+          _id: { month: { $month: "$createdAt" } },
+          assigned: { $sum: 1 },
+          completed: {
+            $sum: {
+              $cond: [{ $eq: ["$status", "Completed"] }, 1, 0]
+            }
+          }
+        }
+      },
+
+      { $sort: { "_id.month": 1 } }
+    ]);
+
+    const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
+                    "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+    const formatted = result.map(r => ({
+      month: months[r._id.month - 1],
+      assigned: r.assigned,
+      completed: r.completed
+    }));
+
+    res.status(200).json({
+      success: true,
+      chart: formatted
+    });
+
+  } catch (error) {
+    console.error("Monthly task error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Internal Server Error"
     });
   }
 };

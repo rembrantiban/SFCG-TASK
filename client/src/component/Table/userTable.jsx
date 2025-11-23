@@ -376,6 +376,10 @@ const UserTable = () => {
             {/* Contact Info */}
             <div className="space-y-3 text-sm text-gray-700 dark:text-gray-300">
               <div className="flex items-center justify-between bg-gray-50 dark:bg-gray-900/40 p-3 rounded-lg hover:bg-blue-50 dark:hover:bg-gray-900 transition">
+                <span className="font-medium text-gray-600 dark:text-gray-400">Username :</span>
+                <span className="truncate max-w-[60%] text-right">{selectedUser.userName}</span>
+              </div>
+              <div className="flex items-center justify-between bg-gray-50 dark:bg-gray-900/40 p-3 rounded-lg hover:bg-blue-50 dark:hover:bg-gray-900 transition">
                 <span className="font-medium text-gray-600 dark:text-gray-400">📧 ID :</span>
                 <span className="truncate max-w-[60%] text-right">{selectedUser.idNumber}</span>
               </div>

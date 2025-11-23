@@ -5,11 +5,8 @@ import {
   BriefcaseBusiness,
   ClipboardList,
   ListChecks,
-  PlusCircle,
-  FileText,
-  FolderOpen,
-  Send,
   Archive,
+  Send,
   ChevronRight,
   LogOut,
   Menu,
@@ -23,8 +20,6 @@ import toast from "react-hot-toast";
 export default function Sidebar() {
   const [open, setOpen] = useState(true);
   const [taskOpen, setTaskOpen] = useState(false);
-  const [recordOpen, setRecordOpen] = useState(false);
-  const [requestOpen, setRequestOpen] = useState(false);
 
   const location = useLocation();
   const navigate = useNavigate();
@@ -40,31 +35,27 @@ export default function Sidebar() {
     { name: "View Task Requests", path: "/allrequest", icon: <Archive size={17} /> },
   ];
 
+  // 🔥 REQUEST / RECORD — NO DROPDOWN
   const recordItems = [
-    { name: "View Records", path: "/records/view", icon: <FolderOpen size={17} /> },
-    { name: "Add Record", path: "/records/create", icon: <FileText size={17} /> },
-  ];
-
-  const requestItems = [
     { name: "View Requests", path: "/requests/view", icon: <Archive size={17} /> },
     { name: "Send Request", path: "/requests/create", icon: <Send size={17} /> },
   ];
 
-   const handleLogout = async () => {
+  const handleLogout = async () => {
     try {
-      await axiosInstance.post("/auth/logout"); // backend logout route
+      await axiosInstance.post("/auth/logout");
       localStorage.removeItem("token");
-      navigate("/"); // redirect
-      toast.success("Logout Successfully")
+      navigate("/");
+      toast.success("Logout Successfully");
     } catch (err) {
       console.error("Logout failed:", err);
-      toast.error("Internal Server Error")
+      toast.error("Internal Server Error");
     }
   };
 
+  // Task Dropdown Only
   const renderDropdown = (isOpen, setIsOpen, title, icon, items) => (
     <>
-      {/* Dropdown Toggle */}
       <motion.li
         onClick={() => setIsOpen(!isOpen)}
         whileHover={{ scale: 1.02 }}
@@ -74,10 +65,14 @@ export default function Sidebar() {
       >
         {icon}
         {open && <span>{title}</span>}
-        {open && <ChevronRight className={`ml-auto transition-transform ${isOpen ? "rotate-90" : ""}`} size={18} />}
+        {open && (
+          <ChevronRight
+            className={`ml-auto transition-transform ${isOpen ? "rotate-90" : ""}`}
+            size={18}
+          />
+        )}
       </motion.li>
 
-      {/* Dropdown Items */}
       <AnimatePresence>
         {isOpen && open && (
           <motion.ul
@@ -111,7 +106,6 @@ export default function Sidebar() {
 
   return (
     <>
-      {/* Mobile Toggle Button */}
       <button
         onClick={() => setOpen(!open)}
         className="md:hidden fixed top-4 left-4 z-50 bg-gray-800 text-white p-2 rounded-lg shadow-lg"
@@ -119,16 +113,13 @@ export default function Sidebar() {
         {open ? <X size={22} /> : <Menu size={22} />}
       </button>
 
-      {/* Sidebar */}
       <motion.div
         animate={{ width: open ? 260 : 80 }}
         transition={{ duration: 0.25 }}
         className="h-screen bg-gradient-to-b from-gray-900 to-gray-700 text-white shadow-xl fixed top-0 left-0 z-40"
       >
-        {/* Brand */}
         <div className="flex flex-col items-center gap-3 p-5 border-b border-gray-600">
           <motion.img
-            initial={{ rotate: 0 }}
             animate={{ rotate: open ? 0 : 360 }}
             transition={{ duration: 0.5 }}
             src="/sfcg.png"
@@ -136,28 +127,23 @@ export default function Sidebar() {
             className="w-16 h-15 rounded-full border border-white shadow-md"
           />
           {open && (
-            <motion.h1
-              initial={{ opacity: 0, x: -10 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -10 }}
-              className="text-lg font-bold tracking-wide bg-gradient-to-r from-orange-900 via-orange-800 to-orange-500 bg-clip-text text-transparent"
-            >
+            <h1 className="text-lg font-bold bg-gradient-to-r from-orange-900 via-orange-800 to-orange-500 bg-clip-text text-transparent">
               SFCG NOI TASK
-            </motion.h1>
-
+            </h1>
           )}
         </div>
 
         <ul className="mt-4 space-y-2">
+
+          {/* MAIN ITEMS */}
           {menuItems.map((menu, index) => {
             const isActive = location.pathname === menu.path;
             return (
               <Link key={index} to={menu.path}>
                 <motion.li
                   whileHover={{ scale: 1.03 }}
-                  className={`flex items-center gap-4 py-3 px-5 rounded-xl text-sm font-medium transition-all
-                    ${isActive ? "bg-gray-600 text-gray-100 shadow-md" : "hover:bg-gray-700"}
-                  `}
+                  className={`flex items-center gap-4 py-3 px-5 rounded-xl text-sm font-medium transition-all 
+                    ${isActive ? "bg-gray-600 text-gray-100 shadow-md" : "hover:bg-gray-700"}`}
                 >
                   {menu.icon}
                   {open && <span>{menu.name}</span>}
@@ -166,18 +152,34 @@ export default function Sidebar() {
             );
           })}
 
-          {/* Dropdown Menus */}
+          {/* TASK DROPDOWN ONLY */}
           {renderDropdown(taskOpen, setTaskOpen, "Task Management", <ClipboardList size={18} />, taskItems)}
-          {renderDropdown(recordOpen, setRecordOpen, "Record", <FileText size={18} />, recordItems)}
-          {renderDropdown(requestOpen, setRequestOpen, "Request", <Send size={18} />, requestItems)}
+
+          {/* RECORD ITEMS — NOT A DROPDOWN */}
+          {recordItems.map((rec, i) => {
+            const isActive = location.pathname === rec.path;
+            return (
+              <Link key={i} to={rec.path}>
+                <motion.li
+                  whileHover={{ scale: 1.03 }}
+                  className={`flex items-center gap-4 py-3 px-5 rounded-xl text-sm font-medium transition-all 
+                    ${isActive ? "bg-gray-600 text-gray-100 shadow-md" : "hover:bg-gray-700"}`}
+                >
+                  {rec.icon}
+                  {open && <span>{rec.name}</span>}
+                </motion.li>
+              </Link>
+            );
+          })}
+
         </ul>
 
         {/* Logout */}
-         <div className="absolute bottom-6 w-full px-5">
+        <div className="absolute bottom-6 w-full px-5">
           <motion.button
             whileHover={{ scale: 1.03 }}
             onClick={handleLogout}
-            className="flex items-center gap-3 py-2 px-10 w-full text-sm font-medium hover:bg-red-600 bg-red-500 rounded-lg transition-all text-white"
+            className="flex items-center gap-3 py-2 px-10 w-full bg-red-500 hover:bg-red-600 rounded-lg text-white text-sm font-medium"
           >
             <LogOut size={18} />
             {open && "Logout"}

@@ -1,15 +1,13 @@
 import React, { useState, useEffect } from "react";
 import axiosInstance from "../../lib/axios";
-import { Eye, EyeOff, X, User, Building, Hash, Lock } from "lucide-react";
+import { Eye, EyeOff, X, User, Building, Hash, Lock, AtSign } from "lucide-react";
 import { toast } from "react-hot-toast";
 
-
 const RegisterModal = ({ isOpen, onClose, onSuccess }) => {
-
-  
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
+    userName: "",
     idNumber: "",
     department: "",
     category: "",
@@ -20,13 +18,16 @@ const RegisterModal = ({ isOpen, onClose, onSuccess }) => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [agree, setAgree] = useState(false);
 
   const [departmentList, setDepartmentList] = useState([]);
   const [categoryList, setCategoryList] = useState([]);
 
   const idRegex = /^\d{3}-\d{4}$/;
   const isIdValid = idRegex.test(formData.idNumber);
+
+  // Username validation
+  const usernameRegex = /^[a-z0-9._-]{3,20}$/;
+  const isUsernameValid = usernameRegex.test(formData.userName);
 
   useEffect(() => {
     const loadDepartments = async () => {
@@ -40,56 +41,63 @@ const RegisterModal = ({ isOpen, onClose, onSuccess }) => {
     loadDepartments();
   }, []);
 
-  /* -----------------------------
-      EARLY RETURN CAN BE HERE
-      (AFTER hooks, BEFORE JSX)
-  ------------------------------ */
   if (!isOpen) return null;
 
-  /* -----------------------------
-      HANDLERS
-  ------------------------------ */
   const handleChange = (e) => {
-    setFormData(prev => ({
-      ...prev,
-      [e.target.name]: e.target.value
-    }));
+    const { name, value } = e.target;
+
+    if (name === "userName") {
+      return setFormData((prev) => ({
+        ...prev,
+        userName: value.toLowerCase().replace(/\s+/g, ""),
+      }));
+    }
+
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleDepartmentSelect = (e) => {
     const value = e.target.value;
 
-    setFormData(prev => ({ ...prev, department: value, category: "" }));
+    setFormData((prev) => ({ ...prev, department: value, category: "" }));
 
-    const selected = departmentList.find(
-      d => d.departmentName === value
-    );
+    const selected = departmentList.find((d) => d.departmentName === value);
 
     setCategoryList(selected?.categories || []);
   };
 
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!agree) return toast.error("You must accept the terms.");
-    if (!isIdValid) return toast.error("ID must be 000-0000 format.");
+    if (!isIdValid) return toast.error("❌ ID must be 000-0000 format.");
+    if (!isUsernameValid) return toast.error("❌ Invalid username format.");
     if (formData.password !== formData.confirmPassword)
-      return toast.error("Passwords do not match.");
+      return toast.error("❌ Passwords do not match.");
 
     setLoading(true);
 
     try {
       const body = {
-        ...formData,
-        role: "Staff"
+        firstName: formData.firstName.trim(),
+        lastName: formData.lastName.trim(),
+        userName: formData.userName.trim(),
+        idNumber: formData.idNumber.trim(),
+        department: formData.department,
+        category: formData.category,
+        password: formData.password,
+        role: "Staff",
       };
 
       const res = await axiosInstance.post("/auth/register", body);
 
       if (res.data.success) {
-        toast.success("Account created!");
+        toast.success("🎉 Account created!");
         onSuccess?.(res.data.user);
         onClose();
+        setTimeout(() => {
+           window.location.reload()
+        }, 400)
       } else {
         toast.error(res.data.message || "Registration failed");
       }
@@ -101,13 +109,13 @@ const RegisterModal = ({ isOpen, onClose, onSuccess }) => {
   };
 
   /* -----------------------------
-      JSX STARTS HERE
+        UI
   ------------------------------ */
   return (
     <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center">
       <div className="bg-white rounded-xl p-6 w-full max-w-lg relative">
-        
-        {/* Close button */}
+
+        {/* Close Button */}
         <button onClick={onClose} className="absolute right-4 top-4">
           <X size={20} />
         </button>
@@ -122,9 +130,29 @@ const RegisterModal = ({ isOpen, onClose, onSuccess }) => {
             <Input icon={<User />} name="lastName" placeholder="Last Name" onChange={handleChange} />
           </div>
 
+          {/* Username */}
+          <Input
+            icon={<AtSign />}
+            name="userName"
+            placeholder="Username"
+            value={formData.userName}
+            onChange={handleChange}
+          />
+          {!isUsernameValid && formData.userName && (
+            <p className="text-xs text-red-500">Username must be 3–20 lowercase characters</p>
+          )}
+
           {/* ID Number */}
-          <Input icon={<Hash />} name="idNumber" placeholder="000-0000" value={formData.idNumber} onChange={handleChange} />
-          {!isIdValid && formData.idNumber && <p className="text-xs text-red-500">Invalid ID format</p>}
+          <Input
+            icon={<Hash />}
+            name="idNumber"
+            placeholder="000-0000"
+            value={formData.idNumber}
+            onChange={handleChange}
+          />
+          {!isIdValid && formData.idNumber && (
+            <p className="text-xs text-red-500">Invalid ID format</p>
+          )}
 
           {/* Department */}
           <div className="relative">
@@ -136,8 +164,10 @@ const RegisterModal = ({ isOpen, onClose, onSuccess }) => {
               className="pl-10 py-2 w-full border rounded"
             >
               <option value="">Select Department</option>
-              {departmentList.map(dept => (
-                <option key={dept._id} value={dept.departmentName}>{dept.departmentName}</option>
+              {departmentList.map((dept) => (
+                <option key={dept._id} value={dept.departmentName}>
+                  {dept.departmentName}
+                </option>
               ))}
             </select>
           </div>
@@ -158,43 +188,44 @@ const RegisterModal = ({ isOpen, onClose, onSuccess }) => {
           )}
 
           {/* Password */}
-          <PasswordInput {...{
-            name: "password",
-            placeholder: "Password",
-            value: formData.password,
-            onChange: handleChange,
-            show: showPassword,
-            toggle: () => setShowPassword(!showPassword)
-          }} />
+          <PasswordInput
+            name="password"
+            placeholder="Password"
+            value={formData.password}
+            onChange={handleChange}
+            show={showPassword}
+            toggle={() => setShowPassword(!showPassword)}
+          />
 
           {/* Confirm Password */}
-          <PasswordInput {...{
-            name: "confirmPassword",
-            placeholder: "Confirm Password",
-            value: formData.confirmPassword,
-            onChange: handleChange,
-            show: showConfirm,
-            toggle: () => setShowConfirm(!showConfirm)
-          }} />
+          <PasswordInput
+            name="confirmPassword"
+            placeholder="Confirm Password"
+            value={formData.confirmPassword}
+            onChange={handleChange}
+            show={showConfirm}
+            toggle={() => setShowConfirm(!showConfirm)}
+          />
 
-          {/* Terms */}
-          <label className="flex items-center gap-2 text-sm">
-            <input type="checkbox" checked={agree} onChange={() => setAgree(!agree)} />
-            I agree to the Terms & Conditions
-          </label>
-
-          <button type="submit" disabled={loading} className="w-full bg-blue-600 text-white py-2 rounded">
+          {/* Submit */}
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full bg-blue-600 text-white py-2 rounded"
+          >
             {loading ? "Creating..." : "Create Account"}
           </button>
 
         </form>
-
       </div>
     </div>
   );
 };
 
-/* Reusable Components */
+/* ------------------------------
+   REUSABLE COMPONENTS
+------------------------------ */
+
 const Input = ({ icon, ...props }) => (
   <div className="relative">
     <span className="absolute left-3 top-3 text-gray-500">{icon}</span>

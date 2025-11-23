@@ -4,10 +4,28 @@ import bcrypt from "bcryptjs";
 
 
 export const register = async (req, res) => {
-  const { firstName, lastName, idNumber, password, role, department, category } = req.body;
+  const { 
+    firstName, 
+    lastName, 
+    userName, 
+    idNumber, 
+    password, 
+    role, 
+    department, 
+    category 
+  } = req.body;
 
-  if (!firstName || !lastName || !idNumber || !password || !department || !category) {
+  if (!firstName || !lastName || !userName || !idNumber || !password || !department || !category) {
     return res.status(400).json({ message: "All fields are required" });
+  }
+
+  const cleanUserName = userName.trim().toLowerCase();
+
+  const usernameRegex = /^[a-z0-9._-]{3,20}$/; 
+  if (!usernameRegex.test(cleanUserName)) {
+    return res.status(400).json({
+      message: "Username must be 3–20 characters long and contain only letters, numbers, dots, underscores, or hyphens.",
+    });
   }
 
   const idNumberRegex = /^\d{3}-\d{4}$/;
@@ -28,6 +46,14 @@ export const register = async (req, res) => {
       });
     }
 
+    const existingUsername = await userModel.findOne({ userName: cleanUserName });
+    if (existingUsername) {
+      return res.status(400).json({
+        success: false,
+        message: "Username already taken",
+      });
+    }
+
     const userRole = role?.trim() || "Staff";
 
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -35,9 +61,10 @@ export const register = async (req, res) => {
     const newUser = await userModel.create({
       firstName,
       lastName,
+      userName: cleanUserName,  
       idNumber,
       department,
-      category,        // <===== REQUIRED FIELD (FIXED)
+      category,
       password: hashedPassword,
       role: userRole,
     });
@@ -64,13 +91,15 @@ export const register = async (req, res) => {
         id: newUser._id,
         firstName: newUser.firstName,
         lastName: newUser.lastName,
+        userName: newUser.userName,
         department: newUser.department,
-        category: newUser.category,   // <=== RETURN CATEGORY
+        category: newUser.category,
         idNumber: newUser.idNumber,
         role: newUser.role,
       },
       token,
     });
+
   } catch (error) {
     console.error("Registration error:", error);
     return res.status(500).json({
@@ -81,18 +110,21 @@ export const register = async (req, res) => {
 };
 
 export const Login = async (req, res) => {
-  const { idNumber, password } = req.body;
+  const { userName, password } = req.body;
 
-  if (!idNumber || !password) {
-    return res.status(400).json({ message: "ID Number and password are required" });
+  if (!userName || !password) {
+    return res.status(400).json({ message: "Username and password are required" });
   }
 
   try {
-    const user = await userModel.findOne({ idNumber });
+    const formattedUsername = userName.toLowerCase().trim();
+
+    const user = await userModel.findOne({ userName: formattedUsername });
+
     if (!user) {
       return res.status(400).json({
         success: false,
-        message: "Invalid ID Number or password",
+        message: "Invalid username or password",
       });
     }
 
@@ -107,7 +139,7 @@ export const Login = async (req, res) => {
     if (!isPasswordValid) {
       return res.status(400).json({
         success: false,
-        message: "Invalid ID or password",
+        message: "Invalid username or password",
       });
     }
 
@@ -124,19 +156,21 @@ export const Login = async (req, res) => {
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
-    return res.status(200).json({
-      success: true,
-      message: "Login successful",
-      user: {
-        id: user._id,
-        firstName: user.firstName,
-        lastName: user.lastName,
-        idNumber: user.idNumber,
-        department: user.department,
-        role: user.role,
-      },
-      token,
-    });
+   return res.status(200).json({
+  success: true,
+  message: "Login successful",
+  user: {
+    _id: user._id, 
+    firstName: user.firstName,
+    lastName: user.lastName,
+    userName: user.userName,
+    idNumber: user.idNumber,
+    department: user.department,
+    role: user.role,
+  },
+  token,
+});
+
   } catch (error) {
     console.error("Login error:", error);
     return res.status(500).json({
@@ -173,9 +207,15 @@ export const logout = async (req, res) => {
 };
 
 
-export const getAllNonAdminUsers = async (req, res) => {
+export const getAllNonAdminUsers = async (req, res) => { 
   try {
-    const users = await userModel.find({ role: { $ne: "Admin" } }).sort({ createdAt: -1 });
+    const users = await userModel
+      .find({
+        role: { 
+          $nin: ["Admin", "College President", "Task Coordinator"] 
+        }
+      })
+      .sort({ createdAt: -1 });
 
     return res.status(200).json({
       success: true,
@@ -191,6 +231,7 @@ export const getAllNonAdminUsers = async (req, res) => {
     });
   }
 };
+
 
 
 export const totalUsersCount = async (req, res) => {
@@ -216,6 +257,21 @@ export const updateUserIsApproved = async (req, res) => {
     const { id } = req.params;
     const { isApproved } = req.body;
 
+    if (!id) {
+      return res.status(400).json({
+        success: false,
+        message: "User ID is missing in request URL.",
+      });
+    }
+
+    // Validate ObjectId format
+    if (!id.match(/^[0-9a-fA-F]{24}$/)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid user ID format.",
+      });
+    }
+
     if (typeof isApproved !== "boolean") {
       return res.status(400).json({
         success: false,
@@ -224,10 +280,12 @@ export const updateUserIsApproved = async (req, res) => {
     }
 
     const user = await userModel.findById(id);
+
     if (!user) {
-      return res
-        .status(404)
-        .json({ success: false, message: "User not found" });
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
     }
 
     if (user.isApproved === isApproved) {
@@ -249,9 +307,10 @@ export const updateUserIsApproved = async (req, res) => {
 
   } catch (error) {
     console.error("Error updating user approval:", error);
-    return res
-      .status(500)
-      .json({ success: false, message: "Internal server error" });
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error",
+    });
   }
 };
 
@@ -300,9 +359,18 @@ export const deleteUser = async (req, res) => {
 export const updateUser = async (req, res) => {
   try {
     const { id } = req.params;
+
+    if (!id || !id.match(/^[0-9a-fA-F]{24}$/)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid or missing user ID.",
+      });
+    }
+
     const {
       firstName,
       lastName,
+      userName,    
       idNumber,
       password,
       role,
@@ -313,35 +381,53 @@ export const updateUser = async (req, res) => {
 
     const updateData = {};
 
-    // VALIDATIONS
+   
+    if (userName) {
+      const usernameRegex = /^[a-z0-9._-]{3,20}$/;
+      if (!usernameRegex.test(userName.toLowerCase())) {
+        return res.status(400).json({
+          success: false,
+          message:
+            "Invalid username. Only letters, numbers, ., _, - (3–20 characters).",
+        });
+      }
+
+      updateData.userName = userName.toLowerCase();
+    }
+
     if (idNumber) {
       const idNumberRegex = /^\d{3}-\d{4}$/;
       if (!idNumberRegex.test(idNumber)) {
         return res.status(400).json({
           success: false,
-          message: "Invalid ID Number format (expected ###-####)",
+          message: "Invalid ID Number format (expected 000-0000).",
         });
       }
       updateData.idNumber = idNumber;
     }
 
-    // UPDATE FIELDS IF PROVIDED
+    
     if (firstName) updateData.firstName = firstName;
     if (lastName) updateData.lastName = lastName;
-
     if (department) updateData.department = department;
-
     if (category) updateData.category = category;
 
-    if (typeof isApproved === "boolean") updateData.isApproved = isApproved;
+    
+    if (typeof isApproved === "boolean") {
+      updateData.isApproved = isApproved;
+    }
 
-    if (role && role.trim() !== "") updateData.role = role.trim();
+  
+    if (role && role.trim() !== "") {
+      updateData.role = role.trim();
+    }
 
+    
     if (password && password.trim() !== "") {
       if (password.length < 10) {
         return res.status(400).json({
           success: false,
-          message: "Password must be at least 10 characters",
+          message: "Password must be at least 10 characters.",
         });
       }
 
@@ -349,7 +435,7 @@ export const updateUser = async (req, res) => {
       updateData.password = hashedPassword;
     }
 
-    // UPDATE USER
+   
     const updatedUser = await userModel.findByIdAndUpdate(id, updateData, {
       new: true,
       runValidators: true,
@@ -358,17 +444,19 @@ export const updateUser = async (req, res) => {
     if (!updatedUser) {
       return res.status(404).json({
         success: false,
-        message: "User not found",
+        message: "User not found.",
       });
     }
 
+    
     return res.status(200).json({
       success: true,
-      message: "User updated successfully",
+      message: "User updated successfully.",
       user: {
         id: updatedUser._id,
         firstName: updatedUser.firstName,
         lastName: updatedUser.lastName,
+        userName: updatedUser.userName, 
         idNumber: updatedUser.idNumber,
         department: updatedUser.department,
         category: updatedUser.category,
@@ -381,10 +469,11 @@ export const updateUser = async (req, res) => {
     console.error("Update user error:", error);
     return res.status(500).json({
       success: false,
-      message: "Server error during update",
+      message: "Server error during update.",
     });
   }
 };
+
 
 
 export const updateAdminProfile = async (req, res) => {

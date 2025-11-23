@@ -84,7 +84,7 @@ const DepartmentList = () => {
                 <input
                     type="text"
                     placeholder="Search department..."
-                    className="w-full pl-10 pr-3 py-2 border rounded-lg bg-white dark:bg-gray-800 dark:border-gray-700 focus:ring-2 focus:ring-blue-500 outline-none"
+                    className="w-full pl-10 pr-3 py-2 rounded-lg bg-white dark:bg-gray-800 dark:border-gray-700 focus:ring-2 focus:ring-blue-500 outline-none"
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
                 />

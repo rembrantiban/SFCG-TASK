@@ -6,7 +6,7 @@ import { toast } from "react-hot-toast";
 
 export function Login() {
   const [openModal, setOpenModal] = useState(false);
-  const [idNumber, setIdNumber] = useState("");
+  const [userName, setUserName] = useState("");
   const [password, setPassword] = useState("");
   const [disableButton, setDisableButton] = useState(true);
   const [loading, setLoading] = useState(false);
@@ -16,7 +16,7 @@ export function Login() {
 
   const onCloseModal = () => {
     setOpenModal(false);
-    setIdNumber("");
+    setUserName("");
     setPassword("");
     setDisableButton(true);
     setLoading(false);
@@ -27,29 +27,38 @@ export function Login() {
     setLoading(true);
 
     try {
-      const res = await axiosInstance.post("/auth/login", { idNumber, password });
+      const res = await axiosInstance.post("/auth/login", { userName, password });
 
       if (res.data.success) {
-        const { id, firstName, lastName, role, department } = res.data.user;
+        const userData = res.data.user; 
+
+        const id = userData.id;
+        const firstName = userData.firstName;
+        const lastName = userData.lastName;
+        const userNameStored = userData.userName;
+        const role = userData.role;
+        const department = userData.department;
 
         localStorage.setItem("token", res.data.token);
-        localStorage.setItem("userId", id);
+        localStorage.setItem("userId", id); 
         localStorage.setItem("userFirstName", firstName);
         localStorage.setItem("userLastName", lastName);
+        localStorage.setItem("userName", userNameStored);
         localStorage.setItem("userRole", role);
         localStorage.setItem("userDepart", department);
 
         toast.success("Login successful!");
-
         onCloseModal();
 
         if (role === "Admin") navigate("/dashboard");
         else if (role === "College President") navigate("/request/taskpresident");
         else if (role === "Task Coordinator") navigate("/request/taskcoordinator");
         else navigate("/staffdashboard");
+
       } else {
         toast.error(res.data.message || "Login failed");
       }
+
     } catch (err) {
       toast.error(err?.response?.data?.message || "Login failed. Try again.");
     } finally {
@@ -95,21 +104,21 @@ export function Login() {
             {/* LOGIN FORM */}
             <form className="space-y-4" onSubmit={handleLogin}>
 
-              {/* ID NUMBER */}
+              {/* USERNAME */}
               <div>
-                <label className="text-sm font-medium text-gray-900">ID Number</label>
+                <label className="text-sm font-medium text-gray-900">Username</label>
                 <input
                   type="text"
-                  placeholder="000-0000"
-                  value={idNumber}
-                  onChange={(e) => setIdNumber(e.target.value)}
+                  placeholder="Enter username"
+                  value={userName}
+                  onChange={(e) => setUserName(e.target.value)}
                   required
                   className="w-full mt-1 px-3 py-2 rounded-lg bg-white/70 text-gray-900
                   border border-gray-300 focus:ring-2 focus:ring-teal-600 outline-none"
                 />
               </div>
 
-              {/* PASSWORD INPUT + TOGGLE */}
+              {/* PASSWORD */}
               <div>
                 <label className="text-sm font-medium text-gray-900">Password</label>
 
@@ -166,6 +175,7 @@ export function Login() {
                   Register
                 </Link>
               </p>
+
             </form>
           </div>
         </div>

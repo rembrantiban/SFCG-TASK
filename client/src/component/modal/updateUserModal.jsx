@@ -11,6 +11,7 @@ import {
   EyeOff,
   Building2,
   Tags,
+  User,
 } from "lucide-react";
 import { toast } from "react-hot-toast";
 
@@ -25,13 +26,13 @@ const UpdateUserModal = ({ userData, onUpdateSuccess }) => {
   const [form, setForm] = useState({
     firstName: "",
     lastName: "",
-    idNumber: "",
+    userName: "",
     department: "",
     category: "",
     password: "",
   });
 
-  
+  /* LOAD DEPARTMENTS */
   useEffect(() => {
     const loadDepartments = async () => {
       try {
@@ -44,13 +45,13 @@ const UpdateUserModal = ({ userData, onUpdateSuccess }) => {
     loadDepartments();
   }, []);
 
-  
+  /* LOAD USER DATA */
   useEffect(() => {
     if (userData) {
       setForm({
         firstName: userData.firstName || "",
         lastName: userData.lastName || "",
-        idNumber: userData.idNumber || "",
+        userName: userData.userName || "",
         department: userData.department || "",
         category: userData.category || "",
         password: "",
@@ -59,32 +60,35 @@ const UpdateUserModal = ({ userData, onUpdateSuccess }) => {
       const selectedDept = departmentList.find(
         (d) => d.departmentName === userData.department
       );
-
       setCategoryList(selectedDept?.categories || []);
     }
   }, [userData, departmentList]);
 
-  const handleChange = (e) =>
-    setForm({ ...form, [e.target.name]: e.target.value });
+  /* HANDLE INPUT CHANGE */
+  const handleChange = (e) => {
+    const { name, value } = e.target;
 
-  /* -------------------------
-      WHEN DEPARTMENT CHANGES
-  -------------------------- */
+    if (name === "userName") {
+      return setForm((prev) => ({
+        ...prev,
+        userName: value.toLowerCase().replace(/\s+/g, ""),
+      }));
+    }
+
+    setForm({ ...form, [name]: value });
+  };
+
+  /* DEPARTMENT CHANGE */
   const handleDepartmentSelect = (e) => {
     const value = e.target.value;
 
     setForm((prev) => ({ ...prev, department: value, category: "" }));
 
-    const selected = departmentList.find(
-      (d) => d.departmentName === value
-    );
-
+    const selected = departmentList.find((d) => d.departmentName === value);
     setCategoryList(selected?.categories || []);
   };
 
-  /* -------------------------
-      UPDATE USER
-  -------------------------- */
+  /* SUBMIT UPDATE */
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
@@ -93,7 +97,7 @@ const UpdateUserModal = ({ userData, onUpdateSuccess }) => {
       const body = {
         firstName: form.firstName,
         lastName: form.lastName,
-        idNumber: form.idNumber,
+        userName: form.userName,
         department: form.department,
         category: form.category,
       };
@@ -106,11 +110,10 @@ const UpdateUserModal = ({ userData, onUpdateSuccess }) => {
 
       toast.success("User updated successfully!");
       onUpdateSuccess(res.data.user);
-
       setIsOpen(false);
     } catch (error) {
       console.error("Update failed", error);
-      toast.error("Error updating user");
+      toast.error(error?.response?.data?.message || "Error updating user");
     } finally {
       setIsLoading(false);
     }
@@ -128,8 +131,8 @@ const UpdateUserModal = ({ userData, onUpdateSuccess }) => {
 
       {isOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
-          <div className="bg-white dark:bg-gray-900 rounded-xl p-6 w-[460px] shadow-xl relative">
-
+          <div className="bg-white rounded-xl p-6 w-[480px] shadow-xl relative">
+            
             {/* CLOSE BUTTON */}
             <button
               onClick={() => setIsOpen(false)}
@@ -138,11 +141,11 @@ const UpdateUserModal = ({ userData, onUpdateSuccess }) => {
               <X size={22} />
             </button>
 
-            <h2 className="text-xl font-semibold text-center mb-4 text-gray-900 dark:text-gray-100">
+            <h2 className="text-xl font-semibold text-center mb-4">
               Update User Information
             </h2>
 
-            {/* Profile */}
+            {/* PROFILE */}
             <div className="flex justify-center mb-5">
               <img
                 src={Profile}
@@ -151,66 +154,69 @@ const UpdateUserModal = ({ userData, onUpdateSuccess }) => {
               />
             </div>
 
+            {/* FORM */}
             <form onSubmit={handleSubmit} className="space-y-3">
 
-              {/* First Name */}
-              <Input
-                label="First Name"
-                icon={<UserCircle2 />}
-                name="firstName"
-                value={form.firstName}
-                onChange={handleChange}
-              />
+              {/* NAME ROW */}
+              <div className="grid grid-cols-2 gap-3">
+                <Input
+                  label="First Name"
+                  icon={<UserCircle2 />}
+                  name="firstName"
+                  value={form.firstName}
+                  onChange={handleChange}
+                />
+                <Input
+                  label="Last Name"
+                  icon={<UserCircle2 />}
+                  name="lastName"
+                  value={form.lastName}
+                  onChange={handleChange}
+                />
+              </div>
 
-              {/* Last Name */}
-              <Input
-                label="Last Name"
-                icon={<UserCircle2 />}
-                name="lastName"
-                value={form.lastName}
-                onChange={handleChange}
-              />
+              {/* USERNAME + DEPARTMENT */}
+              <div className="grid grid-cols-2 gap-3">
+                <Input
+                  label="Username"
+                  icon={<User />}
+                  name="userName"
+                  value={form.userName}
+                  onChange={handleChange}
+                />
 
-              {/* ID Number */}
-              <Input
-                label="ID Number"
-                icon={<Hash />}
-                name="idNumber"
-                value={form.idNumber}
-                disabled
-              />
+                <Select
+                  label="Department"
+                  icon={<Building2 />}
+                  name="department"
+                  value={form.department}
+                  onChange={handleDepartmentSelect}
+                  options={departmentList.map((d) => d.departmentName)}
+                />
+              </div>
 
-              {/* Department */}
-              <Select
-                label="Department"
-                icon={<Building2 />}
-                name="department"
-                value={form.department}
-                onChange={handleDepartmentSelect}
-                options={departmentList.map((d) => d.departmentName)}
-              />
+              {/* CATEGORY + PASSWORD */}
+              <div className="grid grid-cols-2 gap-3">
+                <Select
+                  label="Category"
+                  icon={<Tags />}
+                  name="category"
+                  value={form.category}
+                  onChange={handleChange}
+                  options={categoryList}
+                />
 
-              {/* Category */}
-              <Select
-                label="Category"
-                icon={<Tags />}
-                name="category"
-                value={form.category}
-                onChange={handleChange}
-                options={categoryList}
-              />
+                <PasswordInput
+                  label="New Password (optional)"
+                  name="password"
+                  value={form.password}
+                  onChange={handleChange}
+                  show={showPassword}
+                  toggle={() => setShowPassword(!showPassword)}
+                />
+              </div>
 
-              {/* Password */}
-              <PasswordInput
-                label="New Password (optional)"
-                name="password"
-                value={form.password}
-                onChange={handleChange}
-                show={showPassword}
-                toggle={() => setShowPassword(!showPassword)}
-              />
-
-              {/* Buttons */}
+              {/* ACTION BUTTONS */}
               <div className="flex gap-3 pt-2">
                 <button
                   type="button"
@@ -238,48 +244,59 @@ const UpdateUserModal = ({ userData, onUpdateSuccess }) => {
   );
 };
 
-
+/* INPUT WITH LABEL */
 const Input = ({ label, icon, ...props }) => (
-  <div className="relative">
-    <span className="absolute left-3 top-3 text-gray-500">{icon}</span>
-    <input
-      {...props}
-      placeholder={label}
-      className="w-full pl-10 pr-3 py-2 border rounded-lg bg-gray-50 dark:bg-gray-800 dark:border-gray-700"
-    />
+  <div className="flex flex-col">
+    <label className="text-sm font-medium text-gray-700 mb-1">{label}</label>
+    <div className="relative">
+      <span className="absolute left-3 top-3 text-gray-500">{icon}</span>
+      <input
+        {...props}
+        className="w-full pl-10 pr-3 py-2 border rounded-lg bg-gray-50"
+      />
+    </div>
   </div>
 );
 
+/* SELECT WITH LABEL */
 const Select = ({ label, icon, options, ...props }) => (
-  <div className="relative">
-    <span className="absolute left-3 top-3 text-gray-500">{icon}</span>
-    <select
-      {...props}
-      className="w-full pl-10 pr-3 py-2 border rounded-lg bg-gray-50 dark:bg-gray-800 dark:border-gray-700"
-    >
-      <option value="">{label}</option>
-      {options.map((opt, i) => (
-        <option key={i} value={opt}>{opt}</option>
-      ))}
-    </select>
+  <div className="flex flex-col">
+    <label className="text-sm font-medium text-gray-700 mb-1">{label}</label>
+    <div className="relative">
+      <span className="absolute left-3 top-3 text-gray-500">{icon}</span>
+      <select
+        {...props}
+        className="w-full pl-10 pr-3 py-2 border rounded-lg bg-gray-50"
+      >
+        <option value="">Select {label}</option>
+        {options.map((opt, i) => (
+          <option key={i} value={opt}>
+            {opt}
+          </option>
+        ))}
+      </select>
+    </div>
   </div>
 );
 
+/* PASSWORD WITH LABEL */
 const PasswordInput = ({ label, show, toggle, ...props }) => (
-  <div className="relative">
-    <input
-      {...props}
-      placeholder={label}
-      type={show ? "text" : "password"}
-      className="w-full pl-3 pr-10 py-2 border rounded-lg bg-gray-50 dark:bg-gray-800 dark:border-gray-700"
-    />
-    <button
-      type="button"
-      onClick={toggle}
-      className="absolute right-3 top-2.5 text-gray-500"
-    >
-      {show ? <EyeOff size={18} /> : <Eye size={18} />}
-    </button>
+  <div className="flex flex-col">
+    <label className="text-sm font-medium text-gray-700 mb-1">{label}</label>
+    <div className="relative">
+      <input
+        {...props}
+        type={show ? "text" : "password"}
+        className="w-full pl-3 pr-10 py-2 border rounded-lg bg-gray-50"
+      />
+      <button
+        type="button"
+        onClick={toggle}
+        className="absolute right-3 top-2.5 text-gray-600"
+      >
+        {show ? <EyeOff size={18} /> : <Eye size={18} />}
+      </button>
+    </div>
   </div>
 );
 

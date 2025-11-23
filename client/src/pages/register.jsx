@@ -10,6 +10,7 @@ export function RegisterForm() {
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
+    userName: "",
     idNumber: "",
     department: "",
     category: "",
@@ -40,16 +41,32 @@ export function RegisterForm() {
   }, []);
 
   const handleChange = (e) => {
-    setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value.trimStart() }));
+    const { name, value } = e.target;
+
+    // username always lowercase, no spaces
+    if (name === "userName") {
+      return setFormData((prev) => ({
+        ...prev,
+        userName: value.toLowerCase().replace(/\s+/g, ""),
+      }));
+    }
+
+    setFormData((prev) => ({ ...prev, [name]: value.trimStart() }));
   };
 
+  // VALIDATIONS
   const idFormat = /^\d{3}-\d{4}$/;
   const idValid = idFormat.test(formData.idNumber);
+
+  const usernameFormat = /^[a-z0-9._-]{3,20}$/;
+  const usernameValid = usernameFormat.test(formData.userName);
+
   const passwordValid = formData.password.length >= 10;
 
   const canSubmit =
     formData.firstName &&
     formData.lastName &&
+    usernameValid &&
     idValid &&
     formData.department &&
     formData.category &&
@@ -58,14 +75,19 @@ export function RegisterForm() {
     agreeTerms &&
     !loading;
 
-  
-
+  // SUBMIT HANDLER
   const handleRegister = async (e) => {
     e.preventDefault();
     setLoading(true);
 
+    if (!usernameValid) {
+      toast.error("❌ Username must be 3–20 characters, lowercase, no spaces");
+      setLoading(false);
+      return;
+    }
+
     if (!idValid) {
-      toast.error("❌ Invalid ID format (Use 000-0000)");
+      toast.error("❌ Invalid ID (use format 000-0000)");
       setLoading(false);
       return;
     }
@@ -80,6 +102,7 @@ export function RegisterForm() {
       const body = {
         firstName: formData.firstName.trim(),
         lastName: formData.lastName.trim(),
+        userName: formData.userName.trim(),
         idNumber: formData.idNumber.trim(),
         department: formData.department,
         category: formData.category,
@@ -94,6 +117,7 @@ export function RegisterForm() {
       } else {
         toast.error(res.data.message);
       }
+
     } catch (error) {
       toast.error(error?.response?.data?.message || "Registration failed.");
     } finally {
@@ -103,7 +127,7 @@ export function RegisterForm() {
 
   return (
     <div
-      className="w-screen min-h-screen flex  items-center justify-center px-4 bg-cover bg-center bg-no-repeat"
+      className="w-screen min-h-screen flex items-center justify-center px-4 bg-cover bg-center bg-no-repeat"
       style={{
         backgroundImage: `linear-gradient(rgba(0,0,0,0.65), rgba(0,0,0,0.85)), url(${SfcBackground})`,
       }}
@@ -114,31 +138,40 @@ export function RegisterForm() {
         transition={{ duration: 0.6 }}
         className="w-full max-w-xl max-h-[92vh] overflow-y-hidden bg-white/10 backdrop-blur-3xl border border-white/20 shadow-2xl rounded-3xl p-8"
       >
-        {/* Title */}
+        {/* HEADER */}
         <div className="text-center mb-8">
           <img src="/sfcg.png" className="w-20 mx-auto drop-shadow-xl" />
           <h2 className="text-3xl font-extrabold text-white mt-4">Create Account</h2>
           <p className="text-gray-200 text-sm mt-1">Join the SFCG Staff Task System</p>
         </div>
 
+        {/* FORM */}
         <form className="space-y-4" onSubmit={handleRegister}>
-
-          {/* Name (2 per row compact) */}
+          
+          {/* Row 1 */}
           <div className="grid grid-cols-2 gap-3">
             <InputSmall label="First Name" name="firstName" value={formData.firstName} onChange={handleChange} />
             <InputSmall label="Last Name" name="lastName" value={formData.lastName} onChange={handleChange} />
           </div>
 
-          {/* ID Number */}
-          <InputSmall
-            label="ID Number (000-0000)"
-            name="idNumber"
-            value={formData.idNumber}
-            onChange={handleChange}
-            notice={!idValid && formData.idNumber ? "Invalid ID format" : ""}
-          />
+          {/* Row 2 */}
+          <div className="grid grid-cols-2 gap-3">
+            <InputSmall
+              label="Username"
+              name="userName"
+              value={formData.userName}
+              onChange={handleChange}
+              notice={!usernameValid && formData.userName ? "Invalid username" : ""}
+            />
+            <InputSmall
+              label="ID Number (000-0000)"
+              name="idNumber"
+              value={formData.idNumber}
+              onChange={handleChange}
+              notice={!idValid && formData.idNumber ? "Invalid ID format" : ""}
+            />
+          </div>
 
-          {/* Department & Category (2 per row) */}
           <div className="grid grid-cols-2 gap-3">
             <DropdownSmall
               label="Department"
@@ -164,7 +197,7 @@ export function RegisterForm() {
             )}
           </div>
 
-          {/* PASSWORD ROW */}
+          {/* Row 4 */}
           <div className="grid grid-cols-2 gap-3">
             <PasswordSmall
               label="Password"
@@ -174,7 +207,6 @@ export function RegisterForm() {
               show={showPassword}
               toggle={() => setShowPassword(!showPassword)}
             />
-
             <PasswordSmall
               label="Confirm Password"
               name="confirmPassword"
@@ -189,13 +221,11 @@ export function RegisterForm() {
             <p className="text-xs text-red-300">Password must be at least 10 characters</p>
           )}
 
-          {/* Terms */}
           <div className="flex items-center gap-2 mt-2">
             <input type="checkbox" onChange={(e) => setAgreeTerms(e.target.checked)} />
             <span className="text-white text-sm">I agree to the Terms & Conditions</span>
           </div>
 
-          {/* Submit Button */}
           <button
             disabled={!canSubmit}
             className={`w-full py-2 rounded-lg font-semibold text-white text-base shadow-lg transition-all ${
@@ -204,6 +234,7 @@ export function RegisterForm() {
           >
             {loading ? "Creating Account..." : "Register"}
           </button>
+
         </form>
 
         <p className="text-center text-gray-200 text-sm mt-6 pb-2">
@@ -212,12 +243,13 @@ export function RegisterForm() {
             Sign In
           </Link>
         </p>
+
       </motion.div>
     </div>
   );
 }
 
-/* ---------------------------- SMALL + TRANSPARENT INPUTS ---------------------------- */
+/* ------------------------ HELPER INPUT COMPONENTS ------------------------ */
 
 function InputSmall({ label, name, value, onChange, notice }) {
   return (

@@ -49,7 +49,6 @@ const roleManagement = () => {
     </p>
   </div>
 
-  {/* Department List Component */}
   <DepartmentList />
 </div>
 
