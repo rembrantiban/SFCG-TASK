@@ -8,8 +8,12 @@ import { assignToUser,
          reassignTask, 
          getTaskByRequest , 
         getAllAssignedTasks,
-        updateTaskStatus
+        updateTaskStatus,
+        saveProofUrls,
+        uploadMultipleProofs,
+        getAllAssigned,
     } from "../Controller/assignController.js";
+import { upload } from "../lib/multer.js";
 
 const router = express.Router();
 
@@ -23,9 +27,9 @@ router.patch("/reassign/:taskId", reassignTask);
 router.get("/get-by-request/:id" , getTaskByRequest);
 router.get("/all", getAllAssignedTasks);
 router.put("/status/:id", updateTaskStatus);
-
-
-
+router.post("/upload", upload.array("images", 10),uploadMultipleProofs);
+router.put("/proof/:taskId", saveProofUrls);
+router.get("/assignlist", getAllAssigned);
 
 
 export default router;

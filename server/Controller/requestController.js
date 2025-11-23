@@ -131,7 +131,7 @@ export const getAllUnnotedRequests = async (req, res) => {
 export const getAllUnapprovedRequests = async (req, res) => {
   try {
     const requests = await requestModel
-      .find()
+      .find({ isAssign: false })
       .populate("requestedBy", "firstName lastName department")
       .populate("approvedBy", "firstName lastName")
       .populate("notedBy", "firstName lastName")
@@ -311,6 +311,73 @@ export const getAllRequests = async (req, res) => {
     return res.status(500).json({
       success: false,
       message: "Server error while fetching requests",
+    });
+  }
+};
+
+
+export const rejectUserRequest = async (req, res) => {
+  try {
+    const { requestId } = req.params;
+
+    const request = await requestModel.findById(requestId);
+    if (!request) {
+      return res.status(404).json({
+        success: false,
+        message: "Request not found.",
+      });
+    }
+
+    if (request.isReject === true) {
+      return res.status(400).json({
+        success: false,
+        message: "This request is already rejected.",
+      });
+    }
+
+    request.rejectRequest = true;
+    request.isReject = true;
+
+    await request.save();
+
+    return res.status(200).json({
+      success: true,
+      message: "Request has been successfully rejected.",
+      data: request,
+    });
+
+  } catch (error) {
+    console.error("Reject Request Error:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Server error while rejecting request.",
+    });
+  }
+};
+
+export const cancelRequest = async (req, res) => {
+  try {
+    const { requestId } = req.params;
+
+    const deleted = await requestModel.findByIdAndDelete(requestId);
+
+    if (!deleted) {
+      return res.status(404).json({
+        success: false,
+        message: "Request not found.",
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "Request successfully cancelled (deleted).",
+    });
+
+  } catch (error) {
+    console.error("Cancel Request Error:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Server error while cancelling the request.",
     });
   }
 };

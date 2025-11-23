@@ -20,6 +20,11 @@ const requestSchema = new mongoose.Schema(
       trim: true,
     },
 
+    rejectRequest:{
+       type: Boolean,
+       default: false,
+    },
+
     isReject:{
         type:Boolean,
         default: false,
@@ -29,6 +34,10 @@ const requestSchema = new mongoose.Schema(
       type: String,
       default: "",
       trim: true,
+    },
+    isAssign:{
+       type:Boolean,
+       default: false,
     },
 
     urgency: {

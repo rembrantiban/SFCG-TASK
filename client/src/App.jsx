@@ -19,12 +19,13 @@ import AdminProfile from "./pages/adminProfile.jsx";
 import UserProfile from "./pages/userProfile.jsx";
 import AssignedTaskPage from "./pages/assignTaskPage.jsx";
 import AllRequest from "./pages/allreaquest.jsx";
+import Assignlist from "./pages/assignlist.jsx";
 
 function App() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const location = useLocation();
 
-  const hideSidebarRoutes = ["/", "/register", "/about", "/staffdashboard", "/userRequest", "/request/taskcoordinator", "/request/taskpresident", "/todowork", "/adminprofile", "/user/profile", ]; 
+  const hideSidebarRoutes = ["/", "/register", "/about", "/staffdashboard", "/userRequest", "/request/taskcoordinator", "/request/taskpresident", "/todowork", "/adminprofile", "/user/profile","/allassign" ]; 
 
   const shouldShowSidebar = !hideSidebarRoutes.includes(location.pathname);
 
@@ -58,6 +59,7 @@ function App() {
           <Route path="/user/profile" element={<UserProfile />} />
           <Route path="/assignpage" element={<AssignedTaskPage />} />          
           <Route path="/allrequest" element={<AllRequest />} />
+          <Route path="/allassign" element={<Assignlist />} />
         </Routes>
       </div>
     </div>

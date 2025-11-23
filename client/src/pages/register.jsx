@@ -3,6 +3,8 @@ import { useNavigate, Link } from "react-router-dom";
 import { toast } from "react-hot-toast";
 import axiosInstance from "../lib/axios";
 import { Eye, EyeOff } from "lucide-react";
+import { motion } from "framer-motion";
+import SfcBackground from "../assets/sfcgBackgorund.jpg";
 
 export function RegisterForm() {
   const [formData, setFormData] = useState({
@@ -10,7 +12,7 @@ export function RegisterForm() {
     lastName: "",
     idNumber: "",
     department: "",
-    category: "",     // NEW FIELD
+    category: "",
     password: "",
     confirmPassword: "",
   });
@@ -19,55 +21,51 @@ export function RegisterForm() {
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
   const [departmentList, setDepartmentList] = useState([]);
   const [categoryList, setCategoryList] = useState([]);
 
   const navigate = useNavigate();
 
-  // Fetch all departments on page load
   useEffect(() => {
-    const fetchDepartments = async () => {
+    const loadDepartments = async () => {
       try {
         const res = await axiosInstance.get("/department/getalldepartment");
-        setDepartmentList(res.data.departments);
+        setDepartmentList(res.data.departments || []);
       } catch (error) {
-        console.error("Failed to load departments:", error);
+        console.error("Error fetching departments:", error);
       }
     };
-
-    fetchDepartments();
+    loadDepartments();
   }, []);
 
   const handleChange = (e) => {
-    setFormData((prev) => ({
-      ...prev,
-      [e.target.name]: e.target.value.trimStart(),
-    }));
+    setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value.trimStart() }));
   };
 
-  const idNumberRegex = /^\d{3}-\d{4}$/;
-  const isIdValid = idNumberRegex.test(formData.idNumber);
-  const isPasswordValid = formData.password.length >= 10;
+  const idFormat = /^\d{3}-\d{4}$/;
+  const idValid = idFormat.test(formData.idNumber);
+  const passwordValid = formData.password.length >= 10;
 
   const canSubmit =
     formData.firstName &&
     formData.lastName &&
-    formData.idNumber &&
+    idValid &&
     formData.department &&
-    formData.category &&     // NEW REQUIRED FIELD
-    formData.password &&
-    formData.confirmPassword &&
+    formData.category &&
+    passwordValid &&
+    formData.password === formData.confirmPassword &&
     agreeTerms &&
-    isPasswordValid &&
-    isIdValid &&
     !loading;
+
+  
 
   const handleRegister = async (e) => {
     e.preventDefault();
     setLoading(true);
 
-    if (!isIdValid) {
-      toast.error("❌ ID Format must be 000-0000");
+    if (!idValid) {
+      toast.error("❌ Invalid ID format (Use 000-0000)");
       setLoading(false);
       return;
     }
@@ -83,206 +81,198 @@ export function RegisterForm() {
         firstName: formData.firstName.trim(),
         lastName: formData.lastName.trim(),
         idNumber: formData.idNumber.trim(),
-        department: formData.department.trim(),
-        category: formData.category.trim(),    // ADD CATEGORY TO BODY
-        password: formData.password.trim(),
+        department: formData.department,
+        category: formData.category,
+        password: formData.password,
       };
 
-      const res = await axiosInstance.post("/auth/register", body, {
-        withCredentials: true,
-      });
+      const res = await axiosInstance.post("/auth/register", body, { withCredentials: true });
 
       if (res.data.success) {
-        toast.success("🎉 Registration successful!");
+        toast.success("🎉 Registration Successful!");
         navigate("/");
       } else {
-        toast.error(res.data.message || "Registration failed");
+        toast.error(res.data.message);
       }
-    } catch (err) {
-      toast.error(err?.response?.data?.message || "Something went wrong.");
+    } catch (error) {
+      toast.error(error?.response?.data?.message || "Registration failed.");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-900 via-gray-800 to-black px-6 py-10">
-      <div className="w-full max-w-lg bg-white/20 backdrop-blur-xl rounded-2xl shadow-2xl p-8 border border-white/30">
-
-        {/* Logo + Title */}
-        <div className="flex flex-col items-center text-center mb-8">
-          <img src="/sfcg.png" alt="Logo" className="w-20 mb-3 drop-shadow-lg" />
-          <h3 className="text-3xl font-extrabold text-white tracking-wide">
-            Create Your Account
-          </h3>
-          <p className="text-gray-200 text-sm mt-1">
-            Fill in your details to get started
-          </p>
+    <div
+      className="w-screen min-h-screen flex  items-center justify-center px-4 bg-cover bg-center bg-no-repeat"
+      style={{
+        backgroundImage: `linear-gradient(rgba(0,0,0,0.65), rgba(0,0,0,0.85)), url(${SfcBackground})`,
+      }}
+    >
+      <motion.div
+        initial={{ opacity: 0, scale: 0.92 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.6 }}
+        className="w-full max-w-xl max-h-[92vh] overflow-y-hidden bg-white/10 backdrop-blur-3xl border border-white/20 shadow-2xl rounded-3xl p-8"
+      >
+        {/* Title */}
+        <div className="text-center mb-8">
+          <img src="/sfcg.png" className="w-20 mx-auto drop-shadow-xl" />
+          <h2 className="text-3xl font-extrabold text-white mt-4">Create Account</h2>
+          <p className="text-gray-200 text-sm mt-1">Join the SFCG Staff Task System</p>
         </div>
 
-        {/* FORM */}
-        <form className="space-y-5" onSubmit={handleRegister}>
+        <form className="space-y-4" onSubmit={handleRegister}>
 
-          {/* First + Last Name */}
-          <div className="grid grid-cols-2 gap-4">
-            <Input label="First Name" name="firstName" value={formData.firstName} onChange={handleChange} />
-            <Input label="Last Name" name="lastName" value={formData.lastName} onChange={handleChange} />
+          {/* Name (2 per row compact) */}
+          <div className="grid grid-cols-2 gap-3">
+            <InputSmall label="First Name" name="firstName" value={formData.firstName} onChange={handleChange} />
+            <InputSmall label="Last Name" name="lastName" value={formData.lastName} onChange={handleChange} />
           </div>
 
-          {/* ID NUMBER */}
-          <Input
+          {/* ID Number */}
+          <InputSmall
             label="ID Number (000-0000)"
             name="idNumber"
             value={formData.idNumber}
             onChange={handleChange}
-            notice={!isIdValid && formData.idNumber.length > 0 ? "Format must be 000-0000" : ""}
+            notice={!idValid && formData.idNumber ? "Invalid ID format" : ""}
           />
 
-          {/* DEPARTMENT */}
-          <div>
-            <label className="text-sm font-medium text-white">Department</label>
-            <select
+          {/* Department & Category (2 per row) */}
+          <div className="grid grid-cols-2 gap-3">
+            <DropdownSmall
+              label="Department"
               name="department"
               value={formData.department}
               onChange={(e) => {
                 handleChange(e);
-
-                const selected = departmentList.find(
-                  (dept) => dept.departmentName === e.target.value
-                );
-
-                // Populate categories for selected department
+                const selected = departmentList.find((d) => d.departmentName === e.target.value);
                 setCategoryList(selected?.categories || []);
-                setFormData((prev) => ({ ...prev, category: "" })); // reset category
+                setFormData((prev) => ({ ...prev, category: "" }));
               }}
-              className="w-full mt-1 px-3 py-2 rounded-md bg-white/90 text-black focus:ring-2 focus:ring-blue-500 outline-none"
-            >
-              <option value="">Select Department</option>
-              {departmentList.map((dept) => (
-                <option key={dept._id} value={dept.departmentName}>
-                  {dept.departmentName}
-                </option>
-              ))}
-            </select>
-          </div>
+              options={departmentList.map((d) => d.departmentName)}
+            />
 
-          {/* CATEGORY (Shows only when department selected) */}
-          {categoryList.length > 0 && (
-            <div>
-              <label className="text-sm font-medium text-white">Category</label>
-              <select
+            {categoryList.length > 0 && (
+              <DropdownSmall
+                label="Category"
                 name="category"
                 value={formData.category}
                 onChange={handleChange}
-                className="w-full mt-1 px-3 py-2 rounded-md bg-white/90 text-black focus:ring-2 focus:ring-blue-500 outline-none"
-              >
-                <option value="">Select Category</option>
-                {categoryList.map((cat, idx) => (
-                  <option key={idx} value={cat}>
-                    {cat}
-                  </option>
-                ))}
-              </select>
-            </div>
-          )}
-
-          {/* PASSWORD */}
-          <PasswordInput
-            label="Password"
-            name="password"
-            value={formData.password}
-            onChange={handleChange}
-            show={showPassword}
-            toggle={() => setShowPassword(!showPassword)}
-          />
-          {!isPasswordValid && formData.password.length > 0 && (
-            <p className="text-xs text-red-300">Must be at least 10 characters</p>
-          )}
-
-          {/* CONFIRM PASSWORD */}
-          <PasswordInput
-            label="Confirm Password"
-            name="confirmPassword"
-            value={formData.confirmPassword}
-            onChange={handleChange}
-            show={showConfirmPassword}
-            toggle={() => setShowConfirmPassword(!showConfirmPassword)}
-          />
-
-          {/* TERMS */}
-          <div className="flex items-center gap-2">
-            <input
-              type="checkbox"
-              onChange={(e) => setAgreeTerms(e.target.checked)}
-              className="w-4 h-4"
-            />
-            <span className="text-sm text-white">
-              I agree to the terms & conditions
-            </span>
+                options={categoryList}
+              />
+            )}
           </div>
 
-          {/* SUBMIT BUTTON */}
+          {/* PASSWORD ROW */}
+          <div className="grid grid-cols-2 gap-3">
+            <PasswordSmall
+              label="Password"
+              name="password"
+              value={formData.password}
+              onChange={handleChange}
+              show={showPassword}
+              toggle={() => setShowPassword(!showPassword)}
+            />
+
+            <PasswordSmall
+              label="Confirm Password"
+              name="confirmPassword"
+              value={formData.confirmPassword}
+              onChange={handleChange}
+              show={showConfirmPassword}
+              toggle={() => setShowConfirmPassword(!showConfirmPassword)}
+            />
+          </div>
+
+          {!passwordValid && formData.password && (
+            <p className="text-xs text-red-300">Password must be at least 10 characters</p>
+          )}
+
+          {/* Terms */}
+          <div className="flex items-center gap-2 mt-2">
+            <input type="checkbox" onChange={(e) => setAgreeTerms(e.target.checked)} />
+            <span className="text-white text-sm">I agree to the Terms & Conditions</span>
+          </div>
+
+          {/* Submit Button */}
           <button
-            type="submit"
             disabled={!canSubmit}
-            className={`w-full py-2 rounded-lg text-white font-semibold tracking-wide transition-all ${
-              canSubmit
-                ? "bg-blue-700 hover:bg-blue-800 shadow-lg"
-                : "bg-gray-500 cursor-not-allowed"
+            className={`w-full py-2 rounded-lg font-semibold text-white text-base shadow-lg transition-all ${
+              canSubmit ? "bg-blue-700 hover:bg-blue-800" : "bg-gray-600 cursor-not-allowed"
             }`}
           >
-            {loading ? "Registering..." : "Sign Up"}
+            {loading ? "Creating Account..." : "Register"}
           </button>
         </form>
 
-        {/* FOOTER LINK */}
-        <p className="text-center text-gray-200 text-sm mt-6">
+        <p className="text-center text-gray-200 text-sm mt-6 pb-2">
           Already have an account?{" "}
           <Link to="/" className="text-yellow-300 hover:underline font-semibold">
             Sign In
           </Link>
         </p>
-      </div>
+      </motion.div>
     </div>
   );
 }
 
-/* --- REUSABLE COMPONENTS --- */
+/* ---------------------------- SMALL + TRANSPARENT INPUTS ---------------------------- */
 
-function Input({ label, name, type = "text", value, onChange, notice }) {
+function InputSmall({ label, name, value, onChange, notice }) {
   return (
     <div>
-      <label className="text-sm font-medium text-white">{label}</label>
+      <label className="text-xs text-white font-medium">{label}</label>
       <input
-        type={type}
         name={name}
         value={value}
         onChange={onChange}
-        className="w-full mt-1 px-3 py-2 rounded-md bg-white/90 text-black focus:ring-2 focus:ring-blue-500 outline-none"
+        className="w-full mt-1 px-3 py-1.5 rounded-md bg-white/5 text-white 
+                   border border-white/30 focus:ring-2 focus:ring-blue-400 
+                   outline-none text-sm placeholder-gray-300"
       />
       {notice && <p className="text-xs text-red-300 mt-1">{notice}</p>}
     </div>
   );
 }
 
-function PasswordInput({ label, name, value, onChange, show, toggle }) {
+function DropdownSmall({ label, name, value, onChange, options }) {
   return (
     <div>
-      <label className="text-sm font-medium text-white">{label}</label>
+      <label className="text-xs text-white font-medium">{label}</label>
+      <select
+        name={name}
+        value={value}
+        onChange={onChange}
+        className="w-full mt-1 px-3 py-1.5 rounded-md bg-white/5 text-white 
+                   border border-white/30 outline-none focus:ring-2 
+                   focus:ring-blue-400 text-sm"
+      >
+        <option value="">Select {label}</option>
+        {options.map((opt, idx) => (
+          <option key={idx} className="text-black">{opt}</option>
+        ))}
+      </select>
+    </div>
+  );
+}
+
+function PasswordSmall({ label, name, value, onChange, show, toggle }) {
+  return (
+    <div>
+      <label className="text-xs text-white font-medium">{label}</label>
       <div className="relative">
         <input
           type={show ? "text" : "password"}
           name={name}
           value={value}
           onChange={onChange}
-          className="w-full mt-1 px-3 py-2 rounded-md bg-white/90 text-black focus:ring-2 focus:ring-blue-500 outline-none pr-10"
+          className="w-full mt-1 px-3 py-1.5 rounded-md bg-white/5 text-white 
+                     border border-white/30 outline-none focus:ring-2 focus:ring-blue-400 
+                     pr-10 text-sm"
         />
-        <button
-          type="button"
-          onClick={toggle}
-          className="absolute right-3 top-2.5 text-gray-700 hover:text-black"
-        >
-          {show ? <EyeOff size={20} /> : <Eye size={20} />}
+        <button type="button" onClick={toggle} className="absolute right-3 top-2 text-gray-300">
+          {show ? <EyeOff size={18} /> : <Eye size={18} />}
         </button>
       </div>
     </div>

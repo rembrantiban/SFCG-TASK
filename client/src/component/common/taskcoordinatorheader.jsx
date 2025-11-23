@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { ClipboardList, FilePlus, Eye, LogOut, UserRoundMinus, Menu, X } from "lucide-react";
+import { ClipboardList, FilePlus, StickyNote, LogOut, UserRoundMinus, Menu, X } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -70,6 +70,7 @@ const TaskCoordinatorheader = ({ name = "Staff" }) => {
       {/* Desktop Menu */}
       <div className="hidden sm:grid grid-cols-4 gap-3">
         <ActionCard iconBg="bg-amber-500" icon={<ClipboardList size={18} />} link="/request/taskcoordinator" text="Request" />
+         <ActionCard iconBg="bg-blue-500" icon={<StickyNote  size={18} />} link="/allassign" text="Overview" full />
             <ActionCard iconBg="bg-blue-500" icon={<UserRoundMinus size={18} />} link="/user/profile  " text="Profile" full />
       </div>
 

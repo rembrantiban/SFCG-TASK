@@ -148,7 +148,6 @@ export default function Sidebar() {
           )}
         </div>
 
-        {/* Menu */}
         <ul className="mt-4 space-y-2">
           {menuItems.map((menu, index) => {
             const isActive = location.pathname === menu.path;
@@ -178,7 +177,7 @@ export default function Sidebar() {
           <motion.button
             whileHover={{ scale: 1.03 }}
             onClick={handleLogout}
-            className="flex items-center gap-3 py-2 w-full text-sm font-medium hover:bg-red-600 bg-red-500 rounded-lg transition-all text-white"
+            className="flex items-center gap-3 py-2 px-10 w-full text-sm font-medium hover:bg-red-600 bg-red-500 rounded-lg transition-all text-white"
           >
             <LogOut size={18} />
             {open && "Logout"}

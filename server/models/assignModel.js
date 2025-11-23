@@ -18,7 +18,11 @@ const assignSchema = new mongoose.Schema({
     required: true,
   },
 
-  proofUrl: String,
+   proofUrls: [
+    {
+      type: String,
+    }
+  ],
 
   assign: {
     type: mongoose.Schema.Types.ObjectId,

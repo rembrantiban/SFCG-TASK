@@ -1,5 +1,6 @@
 import React from "react";
 import { motion } from "framer-motion";
+import SfcBackground from "../assets/sfcgBackgorund.jpg";
 import {
   ClipboardList,
   Users,
@@ -12,12 +13,15 @@ import {
 } from "lucide-react";
 import Navbar from "../component/Home/Navbar";
 import { Link } from "react-router-dom";
-//import GetStarted from "../modal/Getstarted.jsx";
 
 const Home = () => {
   return (
-    <div className="w-screen min-h-[100vh] flex flex-col bg-gradient-to-br from-blue-950 via-slate-800 to-blue-900 text-white relative overflow-hidden">
-      {/* Navbar */}
+    <div 
+      className="w-screen min-h-screen flex flex-col text-white relative overflow-hidden bg-cover bg-center bg-no-repeat"
+      style={{
+        backgroundImage: `linear-gradient(rgba(0,0,0,0.50), rgba(0,0,0,0.80)), url(${SfcBackground})`,
+      }}
+    >
       <Navbar />
 
       {/* Hero Section */}

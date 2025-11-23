@@ -8,7 +8,8 @@ import { createRequest,
          markAsApproved,
          updateRequestRejectStatus,
          getAllRequests,
-         
+         rejectUserRequest,
+         cancelRequest,
  } from "../Controller/requestController.js";
 import {
      verifyToken,
@@ -26,6 +27,10 @@ requestRouter.put("/noted/:id", verifyToken, markAsNoted)
 requestRouter.put("/markAsApproved/:id", verifyToken, markAsApproved)
 requestRouter.put("/update-reject/:requestId", updateRequestRejectStatus);
 requestRouter.get("/all", getAllRequests);
+requestRouter.patch("/reject/:requestId", rejectUserRequest);
+requestRouter.delete("/cancel/:requestId", cancelRequest);
+
+
 
 
 

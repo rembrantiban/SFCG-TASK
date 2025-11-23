@@ -3,6 +3,7 @@ import axiosInstance from "../../lib/axios";
 import { Eye, EyeOff, X, User, Building, Hash, Lock } from "lucide-react";
 import { toast } from "react-hot-toast";
 
+
 const RegisterModal = ({ isOpen, onClose, onSuccess }) => {
 
   

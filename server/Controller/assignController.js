@@ -1,6 +1,7 @@
 import UserModel from "../models/userModel.js";
 import AssignModel from "../models/assignModel.js";
 import RequestModel from "../models/requestModel.js";
+import cloudinary from "../config/cloudinary.js"
 
 export const assignToUser = async (req, res) => {
   try {
@@ -23,6 +24,13 @@ export const assignToUser = async (req, res) => {
       return res.status(404).json({ success: false, message: "Request not found" });
     }
 
+     if (String(assignee._id) === String(request.requestedBy._id)) {
+      return res.status(400).json({
+        success: false,
+        message: "You cannot assign this request to the same user who requested it.",
+      });
+    }
+
     if (assignee.category !== request.category) {
       return res.status(400).json({
         success: false,
@@ -30,7 +38,6 @@ export const assignToUser = async (req, res) => {
       });
     }
 
-    // Create assignment
     const assignDoc = await AssignModel.create({
       requestId,
       assign: assigneeId,
@@ -38,11 +45,12 @@ export const assignToUser = async (req, res) => {
       startDate,
       endDate,
       status: "In Progress",
-      assignedStatus: "Pending"
+      assignedStatus: "Pending",
     });
 
     await RequestModel.findByIdAndUpdate(requestId, {
       assignedTo: assigneeId,
+      isAssign: true,        
     });
 
     return res.status(201).json({
@@ -57,39 +65,75 @@ export const assignToUser = async (req, res) => {
   }
 };
 
+
 export const reassignTask = async (req, res) => {
   try {
-    const { id } = req.params;        
+    const { taskId } = req.params;       
     const { newUserId } = req.body;
 
     if (!newUserId) {
       return res.status(400).json({
         success: false,
-        message: "newUserId is required",
+        message: "newUserId is required.",
       });
     }
 
-    const task = await AssignModel.findById(id).populate("requestId");
+    const task = await AssignModel.findById(taskId)   
+      .populate("requestId")
+      .populate("assign");
+
     if (!task) {
       return res.status(404).json({
         success: false,
-        message: "Assigned task not found",
+        message: "Assigned task not found.",
       });
     }
 
-    // Fetch user
     const user = await UserModel.findById(newUserId);
     if (!user) {
       return res.status(404).json({
         success: false,
-        message: "User not found",
+        message: "User not found.",
       });
     }
 
-    if (user.category !== task.requestId.category) {
+    const request = task.requestId;
+
+    if (!request) {
+      return res.status(404).json({
+        success: false,
+        message: "Request not found for this task.",
+      });
+    }
+
+    if (String(newUserId) === String(request.requestedBy)) {
       return res.status(400).json({
         success: false,
-        message: `User category mismatch. This task requires "${task.requestId.category}".`,
+        message: "Cannot assign task to the user who created the request.",
+      });
+    }
+
+    if (String(task.assign?._id) === String(newUserId)) {
+      return res.status(400).json({
+        success: false,
+        message: "This user is already assigned to this task.",
+      });
+    }
+
+    if (
+      task.assignedStatus === "Rejected" &&
+      String(task.assign?._id) === String(newUserId)
+    ) {
+      return res.status(400).json({
+        success: false,
+        message: "This user has already rejected the task and cannot be reassigned.",
+      });
+    }
+
+    if (user.category !== request.category) {
+      return res.status(400).json({
+        success: false,
+        message: `User category mismatch. This task requires "${request.category}".`,
       });
     }
 
@@ -110,12 +154,10 @@ export const reassignTask = async (req, res) => {
     console.error("Reassign error:", error);
     return res.status(500).json({
       success: false,
-      message: "Server error while reassigning task",
+      message: "Server error while reassigning task.",
     });
   }
 };
-
-
 
 
 export const getUserTasks = async (req, res) => {
@@ -383,7 +425,7 @@ export const updateTaskStatus = async (req, res) => {
       });
     }
 
-    const task = await assignModel.findByIdAndUpdate(
+    const task = await AssignModel.findByIdAndUpdate(
       id,
       { status },
       { new: true }
@@ -407,6 +449,72 @@ export const updateTaskStatus = async (req, res) => {
     return res.status(500).json({
       success: false,
       message: "Server error updating task status",
+    });
+  }
+};
+
+
+export const uploadMultipleProofs = async (req, res) => {
+  try {
+    const uploadedUrls = [];
+
+    for (let file of req.files) {
+      const result = await cloudinary.uploader.upload(file.path, {
+        folder: "assign_proofs",
+      });
+      uploadedUrls.push(result.secure_url);
+    }
+
+    return res.json({
+      success: true,
+      urls: uploadedUrls,
+    });
+
+  } catch (err) {
+    return res.status(500).json({ 
+      success: false, 
+      message: err.message 
+    });
+  }
+};
+
+export const saveProofUrls = async (req, res) => {
+  try {
+    const { taskId } = req.params;
+    const { urls } = req.body; 
+    const updated = await AssignModel.findByIdAndUpdate(
+      taskId,
+      {
+        $push: { proofUrls: { $each: urls } }
+      },
+      { new: true }
+    );
+
+    res.json({ success: true, task: updated });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+export const getAllAssigned = async (req, res) => {
+  try {
+    const assigned = await AssignModel
+      .find()
+      .populate("requestId")                         
+      .populate("assign", "firstName lastName department") 
+      .populate("createdBy", "firstName lastName departmen")   
+      .sort({ createdAt: -1 });
+
+    return res.status(200).json({
+      success: true,
+      assignedTasks: assigned,
+    });
+
+  } catch (err) {
+    console.error("getAllAssignedTasks error:", err);
+    return res.status(500).json({
+      success: false,
+      message: "Server error",
     });
   }
 };
