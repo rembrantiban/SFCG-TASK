@@ -27,14 +27,13 @@ const StaffAnalytics = () => {
     try {
       let userId = localStorage.getItem("userId");
 
-      // 🛑 guard against bad values like "undefined" or "null"
-      if (!userId || userId === "undefined" || userId === "null") {
+          if (!userId || userId === "undefined" || userId === "null") {
         console.error("No valid user ID found in localStorage:", userId);
         return;
       }
 
       const statsRes = await axiosInstance.get(`/assign/stats/${userId}`);
-      const monthRes = await axiosInstance.get(`/assign/stats/monthly/${userId}`);
+      const monthRes = await axiosInstance.get(`/assign/monthly/${userId}`);
 
       const stats = statsRes.data.stats || { assigned: 0, completed: 0, pending: 0 };
 

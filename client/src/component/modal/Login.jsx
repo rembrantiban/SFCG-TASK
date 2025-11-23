@@ -30,35 +30,28 @@ export function Login() {
       const res = await axiosInstance.post("/auth/login", { userName, password });
 
       if (res.data.success) {
-        const userData = res.data.user; 
-
-        const id = userData.id;
-        const firstName = userData.firstName;
-        const lastName = userData.lastName;
-        const userNameStored = userData.userName;
-        const role = userData.role;
-        const department = userData.department;
-
+        const { id, firstName, lastName, role, department, userName } = res.data.user;
+          console.log("🟢 USER ID RECEIVED FROM BACKEND:", id);  
+          
         localStorage.setItem("token", res.data.token);
-        localStorage.setItem("userId", id); 
+        localStorage.setItem("userId", id);
         localStorage.setItem("userFirstName", firstName);
         localStorage.setItem("userLastName", lastName);
-        localStorage.setItem("userName", userNameStored);
+        localStorage.setItem("userName", userName);
         localStorage.setItem("userRole", role);
         localStorage.setItem("userDepart", department);
 
         toast.success("Login successful!");
+
         onCloseModal();
 
         if (role === "Admin") navigate("/dashboard");
         else if (role === "College President") navigate("/request/taskpresident");
         else if (role === "Task Coordinator") navigate("/request/taskcoordinator");
         else navigate("/staffdashboard");
-
       } else {
         toast.error(res.data.message || "Login failed");
       }
-
     } catch (err) {
       toast.error(err?.response?.data?.message || "Login failed. Try again.");
     } finally {
@@ -118,7 +111,7 @@ export function Login() {
                 />
               </div>
 
-              {/* PASSWORD */}
+              {/* PASSWORD INPUT + TOGGLE */}
               <div>
                 <label className="text-sm font-medium text-gray-900">Password</label>
 
@@ -175,7 +168,6 @@ export function Login() {
                   Register
                 </Link>
               </p>
-
             </form>
           </div>
         </div>

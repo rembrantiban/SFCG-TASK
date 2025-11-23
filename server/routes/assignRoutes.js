@@ -35,6 +35,4 @@ router.get("/assignlist", getAllAssigned);
 router.get("/stats/:userId", getTaskStats);
 router.get("/monthly/:userId", getMonthlyTaskChart);
 
-
-
 export default router;
