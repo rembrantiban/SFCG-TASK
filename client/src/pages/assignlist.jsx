@@ -10,7 +10,7 @@ import {
   X,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import ReassignModal from "../component/modal/ReassignModal"; // ✔ IMPORT
+import ReassignModal from "../component/modal/reassignModal"; 
 
 const AssignList = () => {
   const [assignedTasks, setAssignedTasks] = useState([]);
