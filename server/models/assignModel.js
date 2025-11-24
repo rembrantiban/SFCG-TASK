@@ -1,5 +1,4 @@
 import mongoose from "mongoose";
-import { ref } from "process";
 
 const assignSchema = new mongoose.Schema({
   requestId: {
@@ -42,7 +41,7 @@ const assignSchema = new mongoose.Schema({
   createdBy: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User', 
-    required: true,
+    required: false,
   },
 
   startDate: Date,

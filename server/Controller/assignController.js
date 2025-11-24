@@ -3,10 +3,11 @@ import AssignModel from "../models/assignModel.js";
 import RequestModel from "../models/requestModel.js";
 import cloudinary from "../config/cloudinary.js"
 import mongoose from "mongoose";
+import path from "path";
 
 export const assignToUser = async (req, res) => {
   try {
-    const { requestId, assigneeId, createdBy, startDate, endDate } = req.body;
+    const { requestId, assigneeId, startDate, endDate } = req.body;
 
     if (!assigneeId || !requestId) {
       return res.status(400).json({
@@ -14,6 +15,8 @@ export const assignToUser = async (req, res) => {
         message: "assigneeId and requestId are required",
       });
     }
+
+    const createdBy = req.user._id;
 
     const assignee = await UserModel.findById(assigneeId);
     if (!assignee) {
@@ -25,7 +28,7 @@ export const assignToUser = async (req, res) => {
       return res.status(404).json({ success: false, message: "Request not found" });
     }
 
-     if (String(assignee._id) === String(request.requestedBy._id)) {
+    if (String(assignee._id) === String(request.requestedBy._id)) {
       return res.status(400).json({
         success: false,
         message: "You cannot assign this request to the same user who requested it.",
@@ -42,7 +45,7 @@ export const assignToUser = async (req, res) => {
     const assignDoc = await AssignModel.create({
       requestId,
       assign: assigneeId,
-      createdBy,
+      createdBy,       
       startDate,
       endDate,
       status: "In Progress",
@@ -165,19 +168,28 @@ export const getUserTasks = async (req, res) => {
   try {
     const { userId } = req.params;
 
-    if (!userId) {
+    if (!userId || userId === "undefined" || userId === "null") {
       return res.status(400).json({
         success: false,
-        message: "User ID is required",
+        message: "Valid user ID is required",
       });
     }
 
-    const tasks = await AssignModel.find({ assign: userId,
-         assignedStatus: { $ne: "Rejected" } })
+    if (!mongoose.Types.ObjectId.isValid(userId)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid user ID format",
+      });
+    }
+
+    const tasks = await AssignModel.find({
+      assign: new mongoose.Types.ObjectId(userId),
+      assignedStatus: { $ne: "Rejected" },
+    })
       .populate({
         path: "requestId",
         select:
-          "taskType category requestDetails urgency requestedDate approvedDate approvedDate notedDate requestedBy",
+          "taskType category requestDetails urgency requestedDate approvedDate notedDate requestedBy",
         populate: {
           path: "requestedBy",
           select: "firstName lastName",
@@ -543,6 +555,46 @@ export const getAllCompletedAssigned = async (req, res) => {
     });
   }
 };
+export const getUserRecords = async (req, res) => {
+  try {
+
+    const records = await AssignModel
+      .find({ status: "Completed" })   
+      .populate({
+        path: "requestId",
+        select: "taskType category requestDetails urgency requestedBy approvedBy notedBy",
+        populate: [
+          {
+            path: "requestedBy",
+            select: "firstName lastName",
+          },
+          {
+            path: "approvedBy",
+            select: "firstName lastName",
+          },
+          {
+            path: "notedBy",
+            select: "firstName lastName",
+          }
+        ],  
+      })
+      .populate("assign", "firstName lastName department category")
+      .sort({ createdAt: -1 });
+
+    res.status(200).json({
+      success: true,
+      records,
+    });
+
+  } catch (error) {
+    console.error("Error fetching records:", error);
+    res.status(500).json({
+      success: false,
+      message: "Error fetching record data",
+    });
+  }
+};
+
 
 export const getTaskStats = async (req, res) => {
   try {

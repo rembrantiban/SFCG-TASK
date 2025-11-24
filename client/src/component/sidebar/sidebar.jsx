@@ -32,13 +32,11 @@ export default function Sidebar() {
 
   const taskItems = [
     { name: "Task List", path: "/assignpage", icon: <ListChecks size={17} /> },
-    { name: "View Task Requests", path: "/allrequest", icon: <Archive size={17} /> },
+    { name: "View Task Requests", path: "/allrequest", icon: <Send size={17} /> },
   ];
 
-  // 🔥 REQUEST / RECORD — NO DROPDOWN
   const recordItems = [
-    { name: "View Requests", path: "/requests/view", icon: <Archive size={17} /> },
-    { name: "Send Request", path: "/requests/create", icon: <Send size={17} /> },
+    { name: "Record", path: "/record", icon: <Archive size={17} /> },
   ];
 
   const handleLogout = async () => {

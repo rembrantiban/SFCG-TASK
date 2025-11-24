@@ -86,7 +86,6 @@ const AssignModal = ({ isOpen, request, onClose, onAssigned, isReassign = false 
     >
       <div className="bg-white p-6 rounded-2xl w-full max-w-lg shadow-xl relative border border-gray-200">
 
-        {/* CLOSE */}
         <button
           onClick={onClose}
           className="absolute top-3 right-3 bg-gray-100 p-2 rounded-full hover:bg-gray-200"

@@ -14,12 +14,14 @@ import { assignToUser,
         getAllAssigned,
         getMonthlyTaskChart,
         getTaskStats,
+        getUserRecords,
     } from "../Controller/assignController.js";
 import { upload } from "../lib/multer.js";
+import { verifyToken } from "../middleware/auth.js"
 
 const router = express.Router();
 
-router.post("/assign-user", assignToUser);
+router.post("/assign-user",verifyToken , assignToUser);
 router.get("/usertasks/:userId", getUserTasks);
 router.get("/weekly-metrics", getWeeklyMetrics);
 router.get("/totalassigned", getAssignStats);  
@@ -34,5 +36,7 @@ router.put("/proof/:taskId", saveProofUrls);
 router.get("/assignlist", getAllAssigned);
 router.get("/stats/:userId", getTaskStats);
 router.get("/monthly/:userId", getMonthlyTaskChart);
+router.get("/record", getUserRecords);
+
 
 export default router;

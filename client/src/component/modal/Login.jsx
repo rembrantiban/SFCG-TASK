@@ -30,16 +30,17 @@ export function Login() {
       const res = await axiosInstance.post("/auth/login", { userName, password });
 
       if (res.data.success) {
-        const { id, firstName, lastName, role, department, userName } = res.data.user;
-          console.log("🟢 USER ID RECEIVED FROM BACKEND:", id);  
-          
-        localStorage.setItem("token", res.data.token);
-        localStorage.setItem("userId", id);
-        localStorage.setItem("userFirstName", firstName);
-        localStorage.setItem("userLastName", lastName);
-        localStorage.setItem("userName", userName);
-        localStorage.setItem("userRole", role);
-        localStorage.setItem("userDepart", department);
+       const { _id, firstName, lastName, role, department, userName } = res.data.user;
+
+          console.log("LOGIN USER _id:", _id);
+
+          localStorage.setItem("token", res.data.token);
+          localStorage.setItem("userId", _id);
+          localStorage.setItem("userFirstName", firstName);
+          localStorage.setItem("userLastName", lastName);
+          localStorage.setItem("userName", userName);
+          localStorage.setItem("userRole", role);
+          localStorage.setItem("userDepart", department);
 
         toast.success("Login successful!");
 

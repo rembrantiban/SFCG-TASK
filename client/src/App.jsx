@@ -20,6 +20,7 @@ import UserProfile from "./pages/userProfile.jsx";
 import AssignedTaskPage from "./pages/assignTaskPage.jsx";
 import AllRequest from "./pages/allreaquest.jsx";
 import Assignlist from "./pages/assignlist.jsx";
+import Record from "./pages/record.jsx";
 
 function App() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
@@ -60,7 +61,8 @@ function App() {
           <Route path="/assignpage" element={<AssignedTaskPage />} />          
           <Route path="/allrequest" element={<AllRequest />} />
           <Route path="/allassign" element={<Assignlist />} />
-        </Routes>
+          <Route path="/record" element={<Record />} />
+          </Routes>
       </div>
     </div>
   );
