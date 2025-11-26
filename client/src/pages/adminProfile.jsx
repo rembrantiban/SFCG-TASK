@@ -139,26 +139,7 @@ const AdminProfile = () => {
               />
             </div>
 
-            {/* Locked Section */}
-            <div className="p-3 bg-gray-50 border rounded-lg">
-              <p className="text-xs font-semibold text-gray-500 mb-1">
-                Locked Information
-              </p>
-
-              <label className="text-xs text-gray-600">Department</label>
-              <input
-                disabled
-                value={admin.department}
-                className="w-full p-2 mt-1 mb-2 border rounded-lg bg-gray-200 text-sm text-gray-600"
-              />
-
-              <label className="text-xs text-gray-600">Category</label>
-              <input
-                disabled
-                value={admin.category}
-                className="w-full p-2 mt-1 border rounded-lg bg-gray-200 text-sm text-gray-600"
-              />
-            </div>
+           
 
             {/* Password */}
             <div className="relative">
@@ -174,7 +155,6 @@ const AdminProfile = () => {
                 className="w-full p-2 border rounded-lg mt-1 text-sm pr-10"
               />
 
-              {/* Show / Hide password */}
               <div
                 className="absolute right-3 top-9 cursor-pointer text-gray-500"
                 onClick={() => setShowPassword(!showPassword)}
