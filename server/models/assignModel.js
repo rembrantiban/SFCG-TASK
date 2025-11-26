@@ -12,8 +12,8 @@ const assignSchema = new mongoose.Schema({
 
   status: {   
     type: String,
-    enum: ['Pending', 'In Progress', 'Completed'],
-    default: 'Pending',
+    enum: ['In Progress', 'Pending', 'Completed'],
+    default: 'In Progress',
     required: true,
   },
 

@@ -255,7 +255,6 @@ const RecordTable = () => {
       </div>
 
       <div className="p-5 space-y-4 text-sm">
-
         <div className="space-y-1">
           <p className="font-medium text-gray-700">Request Type</p>
           <div className="p-2 bg-gray-100 rounded text-gray-800">

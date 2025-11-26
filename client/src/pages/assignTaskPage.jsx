@@ -193,12 +193,18 @@ const AssignedTaskPage = () => {
       <div className="max-w-6xl mx-auto">
 
         {/* TITLE HEADER */}
-        <div className="mb-6 text-center bg-gradient-to-r shadow rounded p-2 from-gray-800 via-gray-900 to-black">
-          <h1 className="text-3xl font-bold text-gray-100 flex items-center justify-center gap-2">
-            <ClipboardList size={32} className="text-blue-400" />
+        <div className="mb-8 text-center bg-gradient-to-r from-gray-50 via-gray-100 to-gray-50 shadow-lg rounded-xl p-6 border border-gray-200">
+          <h1 className="text-4xl font-extrabold text-gray-800 tracking-wide flex items-center justify-center gap-3 drop-shadow-lg">
+            <ClipboardList size={40} className="text-blue-400" />
             Assigned Tasks Overview
           </h1>
+
+          <p className="text-gray-500 text-sm mt-3 max-w-2xl mx-auto">
+            A detailed summary of all assigned tasks, including their current status, assigned personnel, 
+            and progress timelines to ensure smooth workflow and efficient task tracking.
+          </p>
         </div>
+
 
         {/* FILTER */}
         <div className="flex gap-3 mb-6 justify-center bg-gray-50 border border-gray-300 rounded-xl  shadow p-2 max-w-2xl mx-auto">

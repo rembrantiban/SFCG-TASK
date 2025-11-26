@@ -34,15 +34,12 @@ const TodoWorks = () => {
   const [viewerIndex, setViewerIndex] = useState(0);
   const [viewerZoom, setViewerZoom] = useState(1);
 
-  // Touch tracking for swipe + drag-close
   const touchStartRef = useRef({ x: 0, y: 0 });
 
-  // Reject modal
   const [rejectModalOpen, setRejectModalOpen] = useState(false);
   const [rejectReason, setRejectReason] = useState("");
   const [selectedTaskId, setSelectedTaskId] = useState(null);
 
-  // Complete modal
   const [completeModalOpen, setCompleteModalOpen] = useState(false);
   const [selectedCompleteTaskId, setSelectedCompleteTaskId] = useState(null);
 
@@ -103,7 +100,6 @@ const TodoWorks = () => {
     }
   };
 
-  // Status update
   const updateStatus = async (taskId, newStatus) => {
     try {
       const res = await axiosInstance.put(`/assign/status/${taskId}`, {
@@ -162,7 +158,7 @@ const TodoWorks = () => {
 
   const getProgressPercent = (task) => {
     if (task.status === "Completed") return 100;
-    if (task.status === "In Progress") return 60;
+    if (task.status === "Pending") return 60;
     return 30;
   };
 
@@ -216,14 +212,12 @@ const TodoWorks = () => {
     const absDx = Math.abs(dx);
     const absDy = Math.abs(dy);
 
-    // Horizontal swipe for gallery
     if (absDx > 50 && absDx > absDy) {
       if (dx < 0) showNext();
       else showPrev();
       return;
     }
 
-    // Vertical drag down to close
     if (dy > 80 && absDy > absDx) {
       closeViewer();
     }
@@ -303,7 +297,6 @@ const TodoWorks = () => {
               )}
             </motion.div>
 
-            {/* Zoom + info toolbar */}
             <div
               className="absolute bottom-6 flex items-center gap-3 bg-black/60 text-white px-4 py-2 rounded-full text-xs md:text-sm"
               onClick={(e) => e.stopPropagation()}
@@ -339,7 +332,6 @@ const TodoWorks = () => {
         )}
       </AnimatePresence>
 
-      {/* 🔴 REJECT MODAL */}
       <AnimatePresence>
         {rejectModalOpen && (
           <motion.div
@@ -378,7 +370,6 @@ const TodoWorks = () => {
         )}
       </AnimatePresence>
 
-      {/* 🟢 COMPLETE MODAL */}
       <AnimatePresence>
         {completeModalOpen && (
           <motion.div
@@ -416,29 +407,27 @@ const TodoWorks = () => {
         )}
       </AnimatePresence>
 
-      {/* MAIN */}
       <div className="p-6 max-w-6xl mx-auto">
-       <div className="relative mb-8">
-  <div className="backdrop-blur-md bg-gray-900 border border-white/20 
+        <div className="relative mb-8">
+          <div className="backdrop-blur-md bg-gray-900 border border-white/20 
       shadow-xl rounded-2xl px-8 py-6 flex items-center gap-4">
-    <div className="p-3 rounded-xl bg-gradient-to-br from-blue-400/40 to-blue-600/40 
+            <div className="p-3 rounded-xl bg-gradient-to-br from-blue-400/40 to-blue-600/40 
         shadow-inner">
-      <ClipboardList className="text-blue-100" size={28} />
-    </div>
+              <ClipboardList className="text-blue-100" size={28} />
+            </div>
 
-    <div>
-      <h1 className="text-3xl font-bold text-white drop-shadow">
-        My Assigned Tasks
-      </h1>
-      <p className="text-blue-100/80 text-sm mt-1">
-        Manage and update your ongoing work.
-      </p>
-    </div>
-  </div>
-</div>
-        
+            <div>
+              <h1 className="text-3xl font-bold text-white drop-shadow">
+                My Assigned Tasks
+              </h1>
+              <p className="text-blue-100/80 text-sm mt-1">
+                Manage and update your ongoing work.
+              </p>
+            </div>
+          </div>
+        </div>
 
-        {/* LIST */}
+
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
           {tasks.map((task) => {
             const progress = getProgressPercent(task);
@@ -480,47 +469,50 @@ const TodoWorks = () => {
                   </div>
                 </div>
 
-                {/* STATUS CHIPS (BADGES) */}
                 {task.assignedStatus !== "Pending" && (
                   <div className="mt-3 flex flex-wrap gap-2 text-xs">
-                    {["Pending", "In Progress", "Completed"].map((status) => {
+                    {["In Progress", "Pending", "Completed"].map((status) => {
                       const isActive = task.status === status;
+
+                      // 🔒 DISABLE LOGIC
+                      const isDisabled =
+                        (task.status === "In Progress" && status === "Completed") ||
+                        (task.status === "Pending" && status === "In Progress") ||
+                        (task.status === "Completed" && (status === "In Progress" || status === "Pending"));
+
                       const baseClasses =
-                        "px-3 py-1 rounded-full border transition cursor-pointer";
+                        "px-3 py-1 rounded-full border transition";
 
                       let activeClasses = "";
                       let inactiveClasses = "";
+                      let disabledClasses = "opacity-40 cursor-not-allowed";
 
-                      if (status === "Pending") {
-                        activeClasses =
-                          "bg-yellow-500 text-white border-yellow-600 shadow";
-                        inactiveClasses =
-                          "text-yellow-700 border-yellow-300 hover:bg-yellow-50";
-                      } else if (status === "In Progress") {
-                        activeClasses =
-                          "bg-blue-600 text-white border-blue-700 shadow";
-                        inactiveClasses =
-                          "text-blue-700 border-blue-300 hover:bg-blue-50";
+                      if (status === "In Progress") {
+                        activeClasses = "bg-yellow-500 text-white border-yellow-600 shadow";
+                        inactiveClasses = "text-yellow-700 border-yellow-300 hover:bg-yellow-50";
+                      } else if (status === "Pending") {
+                        activeClasses = "bg-blue-600 text-white border-blue-700 shadow";
+                        inactiveClasses = "text-blue-700 border-blue-300 hover:bg-blue-50";
                       } else {
-                        activeClasses =
-                          "bg-green-600 text-white border-green-700 shadow";
-                        inactiveClasses =
-                          "text-green-700 border-green-300 hover:bg-green-50";
+                        activeClasses = "bg-green-600 text-white border-green-700 shadow";
+                        inactiveClasses = "text-green-700 border-green-300 hover:bg-green-50";
                       }
 
                       return (
                         <button
                           key={status}
                           type="button"
-                          className={`${baseClasses} ${
-                            isActive ? activeClasses : inactiveClasses
-                          }`}
-                          onClick={() => handleStatusClick(task, status)}
+                          disabled={isDisabled}
+                          className={`${baseClasses} 
+                          ${isActive ? activeClasses : inactiveClasses} 
+                          ${isDisabled ? disabledClasses : ""}`}
+                          onClick={() => !isDisabled && handleStatusClick(task, status)}
                         >
                           {status}
                         </button>
                       );
                     })}
+
                   </div>
                 )}
 

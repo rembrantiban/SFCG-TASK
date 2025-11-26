@@ -3,7 +3,6 @@ import AssignModel from "../models/assignModel.js";
 import RequestModel from "../models/requestModel.js";
 import cloudinary from "../config/cloudinary.js"
 import mongoose from "mongoose";
-import path from "path";
 
 export const assignToUser = async (req, res) => {
   try {
@@ -595,6 +594,46 @@ export const getUserRecords = async (req, res) => {
   }
 };
 
+export const getForCalendar = async (req, res) => {
+  try {
+
+    const records = await AssignModel
+      .find()   
+      .populate({
+        path: "requestId",
+        select: "taskType category requestDetails urgency requestedBy approvedBy notedBy",
+        populate: [
+          {
+            path: "requestedBy",
+            select: "firstName lastName",
+          },
+          {
+            path: "approvedBy",
+            select: "firstName lastName",
+          },
+          {
+            path: "notedBy",
+            select: "firstName lastName",
+          }
+        ],  
+      })
+      .populate("assign", "firstName lastName department category")
+      .sort({ createdAt: -1 });
+
+    res.status(200).json({
+      success: true,
+      records,
+    });
+
+  } catch (error) {
+    console.error("Error fetching records:", error);
+    res.status(500).json({
+      success: false,
+      message: "Error fetching record data",
+    });
+  }
+};
+
 
 export const getTaskStats = async (req, res) => {
   try {
@@ -609,10 +648,15 @@ export const getTaskStats = async (req, res) => {
 
     const objectId = new mongoose.Types.ObjectId(userId);
 
-    const assigned = await AssignModel.countDocuments({ userId: objectId });
-    const completed = await AssignModel.countDocuments({ userId: objectId, status: "Completed" });
+    const assigned = await AssignModel.countDocuments({ assign: objectId });
+
+    const completed = await AssignModel.countDocuments({
+      assign: objectId,
+      status: "Completed"
+    });
+
     const pending = await AssignModel.countDocuments({
-      userId: objectId,
+      assign: objectId,
       status: { $in: ["Pending", "In Progress"] }
     });
 
@@ -643,8 +687,8 @@ export const getMonthlyTaskChart = async (req, res) => {
 
     const objectId = new mongoose.Types.ObjectId(userId);
 
-    const result = await AssignModel.aggregate([
-      { $match: { userId: objectId } },
+        const result = await AssignModel.aggregate([
+      { $match: { assign: objectId } },
 
       {
         $group: {
@@ -660,6 +704,7 @@ export const getMonthlyTaskChart = async (req, res) => {
 
       { $sort: { "_id.month": 1 } }
     ]);
+
 
     const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
                     "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
@@ -681,5 +726,18 @@ export const getMonthlyTaskChart = async (req, res) => {
       success: false,
       message: "Internal Server Error"
     });
+  }
+};
+
+export const getCompletedCounts = async (req, res) => {
+  try {
+    const totalCompleted = await AssignModel.countDocuments({ status: "Completed" });
+
+    res.status(200).json({
+      success: true,
+      totalCompleted,
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
   }
 };

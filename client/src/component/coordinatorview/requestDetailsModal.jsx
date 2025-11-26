@@ -17,7 +17,6 @@ const RequestDetailsModal = ({ request, onClose, refreshData }) => {
     });
   };
 
-  // --- MARK AS NOTED HANDLER ---
   const handleMarkAsNoted = async () => {
     try {
       const res = await axiosInstance.put(`/request/noted/${request._id}`);
@@ -109,7 +108,7 @@ const RequestDetailsModal = ({ request, onClose, refreshData }) => {
         {/* Footer */}
         <div className="mt-6 flex justify-between items-center gap-3">
 
-          {/* Mark as Noted Button */}
+         
           {request.status === "Pending" && (
             <button
               onClick={handleMarkAsNoted}

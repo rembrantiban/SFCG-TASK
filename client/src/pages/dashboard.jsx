@@ -3,13 +3,29 @@ import Header from '../component/common/header.jsx'
 import StatsCards from '../component/statcard/statCards.jsx';
 import MetricsBarChart from '../component/analytics/metricsBarChart .jsx';
 import MetricsLineChart from '../component/analytics/metricsLineChart.jsx';
-import SkillsChart from '../component/analytics/skillsChart.jsx';
 import axiosInstance from '../lib/axios.js';
+import TaskCalendar from '../component/analytics/taskCalendar.jsx';
 
 const Dashboard = () => {
   const [totalUsers, setTotalUsers] = useState(0);  
   const [totalRequests, setTotalRequests] = useState(0);
-    const [totalAssigned, setTotalAssigned] = useState(0);
+  const [totalAssigned, setTotalAssigned] = useState(0);
+  const [tasks, setTasks] = useState([]);
+  const [totalcompleted, setTotalCompleted] = useState(0)
+
+useEffect(() => {
+  const fetchTasks = async () => {
+    try {
+      const res = await axiosInstance.get("/assign/calendar");
+      setTasks(res.data.records || []);
+    } catch (err) {
+      console.error("Error fetching tasks:", err);
+    }
+  };
+
+  fetchTasks();
+}, []);
+
 
 
   useEffect(() => {
@@ -46,6 +62,19 @@ useEffect(() => {
       const response = await axiosInstance.get("/auth/totaluserscount");
       setTotalUsers(response.data.totalUsers || 0);
       console.log(response.data.totalUsers);
+    } catch (error) {
+      console.warn("Error while fetching users", error);
+    }
+  };
+  fetchData();
+}, []);
+
+useEffect(() => {
+  const fetchData = async () => {
+    try {
+      const response = await axiosInstance.get("/assign/totalcompleted");
+      setTotalCompleted(response.data.totalCompleted || 0);
+      console.log(response.data.totalCompleted);
     } catch (error) {
       console.warn("Error while fetching users", error);
     }
@@ -98,12 +127,16 @@ useEffect(() => {
         totalUsers={totalUsers}
         totalRequest={totalRequests}
         totalAssigned={totalAssigned}
+        totalCompleted={totalcompleted}
       />
+      </div>
+      
+      <div className='px-10 py-10'>
+        <TaskCalendar tasks={tasks} />
       </div>
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 px-20 mt-8 pb-4">
         <MetricsLineChart />
         <MetricsBarChart />
-        <SkillsChart />
       </div>
     </div>
   )

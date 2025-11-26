@@ -15,6 +15,8 @@ import { assignToUser,
         getMonthlyTaskChart,
         getTaskStats,
         getUserRecords,
+        getForCalendar,
+        getCompletedCounts,
     } from "../Controller/assignController.js";
 import { upload } from "../lib/multer.js";
 import { verifyToken } from "../middleware/auth.js"
@@ -37,6 +39,7 @@ router.get("/assignlist", getAllAssigned);
 router.get("/stats/:userId", getTaskStats);
 router.get("/monthly/:userId", getMonthlyTaskChart);
 router.get("/record", getUserRecords);
-
+router.get("/calendar", getForCalendar)
+router.get("/totalcompleted", getCompletedCounts);
 
 export default router;

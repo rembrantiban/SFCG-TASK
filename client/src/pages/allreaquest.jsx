@@ -93,8 +93,8 @@ const AllRequest = () => {
 
       <div className="max-w-6xl mx-auto px-5 py-8">
         {/* HEADER */}
-        <div className="text-center mb-6  bg-gradient-to-r shadow-sm rounded p-2 from-gray-800 via-gray-900 to-gray-900">
-          <h1 className="text-3xl font-bold text-gray-200 flex items-center justify-center gap-2">
+        <div className="text-center mb-6  bg-gradient-to-r shadow-sm border border-gray-100 rounded-xl p-2 from-gray-50 via-gray-200 to-gray-50">
+          <h1 className="text-3xl font-bold text-gray-700 flex items-center justify-center gap-2">
             <ClipboardList className="text-blue-600" size={30} />
             All Work Requests
           </h1>

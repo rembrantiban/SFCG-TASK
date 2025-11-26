@@ -107,7 +107,8 @@ export const getAllUnnotedRequests = async (req, res) => {
   try {
     const requests = await requestModel
       .find({
-        $or: [{ approvedBy: null }, { approvedBy: { $exists: false } }]
+        notedBy: { $ne: null },              
+        approvedBy: { $in: [null, undefined] }  
       })
       .populate("requestedBy", "firstName lastName department")
       .populate("approvedBy", "firstName lastName")

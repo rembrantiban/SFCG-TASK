@@ -2,34 +2,30 @@ import React from "react";
 import { Users, ClipboardList, Send, CheckCircle } from "lucide-react";
 import { motion } from "framer-motion";
 
-const StatsCards = ({ totalUsers, totalTasks, totalRequest, totalAssigned }) => {
+const StatsCards = ({ totalUsers, totalCompleted, totalRequest, totalAssigned }) => {
   const stats = [
     {
       title: "Total Users",
       value: totalUsers || 0,
-      icon: <Users className="w-6 h-6 text-blue-400" />,
-      bg: "bg-blue-900/40",
+      icon: <Users className="w-6 h-6 text-blue-700" />,
       dot: "bg-blue-400"
     },
     {
-      title: "No. of Tasks",
-      value: totalTasks || 0,
-      icon: <ClipboardList className="w-6 h-6 text-yellow-400" />,
-      bg: "bg-yellow-900/40",
+      title: "No. of Completed Task",
+      value: totalCompleted || 0,
+      icon: <ClipboardList className="w-6 h-6 text-yellow-700" />,
       dot: "bg-yellow-400"
     },
     {
       title: "Task Requests",
       value: totalRequest || 0,
-      icon: <Send className="w-6 h-6 text-purple-400" />,
-      bg: "bg-purple-900/40",
+      icon: <Send className="w-6 h-6 text-purple-700" />,
       dot: "bg-purple-400"
     },
     {
       title: "Assigned Tasks",
       value: totalAssigned || 0,
-      icon: <CheckCircle className="w-6 h-6 text-green-400" />,
-      bg: "bg-green-900/40",
+      icon: <CheckCircle className="w-6 h-6 text-green-700" />,
       dot: "bg-green-400"
     },
   ];
@@ -48,11 +44,11 @@ const StatsCards = ({ totalUsers, totalTasks, totalRequest, totalAssigned }) => 
           <div>
             <div className="flex items-center gap-2 mb-1">
               <span className={`w-2.5 h-2.5 rounded-full ${item.dot}`}></span>
-              <p className="text-gray-200 text-xs uppercase tracking-wide font-medium">
+              <p className="text-gray-600 text-xs uppercase tracking-wide font-medium">
                 {item.title}
               </p>
             </div>
-            <h2 className="text-3xl font-bold text-white">{item.value}</h2>
+            <h2 className="text-3xl font-bold text-gray-500">{item.value}</h2>
           </div>
 
           <div className="p-3 bg-black/20 rounded-lg border border-white/10">
