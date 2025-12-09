@@ -2,10 +2,15 @@ import React from "react";
 import { motion } from "framer-motion";
 import { Users, ClipboardCheck, BarChart3, Target } from "lucide-react";
 import Navbar from "../component/Home/Navbar";
+import SfcBackground from "../assets/sfcgBackgorund.jpg";
+
 
 const About = () => {
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-br from-blue-950 via-gray-800 to-blue-900 text-white">
+    <div className="w-screen min-h-screen flex flex-col text-white relative overflow-hidden bg-cover bg-center bg-no-repeat"
+          style={{
+            backgroundImage: `linear-gradient(rgba(0,0,0,0.50), rgba(0,0,0,0.80)), url(${SfcBackground})`,
+          }}>
       <Navbar />
 
       {/* Header Section */}
