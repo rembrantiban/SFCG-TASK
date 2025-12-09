@@ -138,10 +138,6 @@ const AdminProfile = () => {
                 className="w-full p-2 border rounded-lg mt-1 text-sm"
               />
             </div>
-
-           
-
-            {/* Password */}
             <div className="relative">
               <label className="font-medium text-gray-700">
                 New Password (Optional)

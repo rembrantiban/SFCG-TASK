@@ -85,7 +85,7 @@ const RecordTable = () => {
   return (
     <div className="p-4">
 
-      <div className="no-print bg-white shadow-lg p-4 rounded-lg border border-gray-300 ">
+      <div className="no-print bg-white shadow-sm p-4 rounded-lg  ">
 
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-2xl font-bold">Task Records</h2>
@@ -138,12 +138,12 @@ const RecordTable = () => {
 
           <tbody>
             {filteredRecords.map((r) => (
-              <tr key={r._id} className="border-b border-gray-300">
-                <td className="px-4 py-2">{r.requestId?.taskType}</td>
-                <td className="px-4 py-2">{r.assign?.firstName} {r.assign?.lastName}</td>
-                <td className="px-4 py-2">{r.status}</td>
-                <td className="px-4 py-2">{new Date(r.updatedAt).toLocaleDateString()}</td>
-                <td className="px-4 py-2">
+              <tr key={r._id} className="">
+                <td className="px-4  relative left-15 py-2">{r.requestId?.taskType}</td>
+                <td className="px-4  relative left-15 py-2">{r.assign?.firstName} {r.assign?.lastName}</td>
+                <td className="px-4 relative left-10 py-2">{r.status}</td>
+                <td className=" relative left-20 py-2">{new Date(r.updatedAt).toLocaleDateString()}</td>
+                <td className="px-4  relative left-5  py-2">
                   <button className="text-blue-600" onClick={() => setSelectedRecord(r)}>
                     <Eye size={16} className="inline" /> View
                   </button>

@@ -91,8 +91,8 @@ const AssignList = () => {
 
                 <p>
                   <strong>Assigned By:</strong>{" "}
-                  {selectedRequest.createdBy?.firstName}{" "}
-                  {selectedRequest.createdBy?.lastName}
+                  {selectedRequest.createdBy?.firstName}{" "} 
+                  {selectedRequest.createdBy?.lastName} { "Ciloy Salamon"}
                 </p>
 
                 <p><strong>Description:</strong></p>
@@ -178,7 +178,7 @@ const AssignList = () => {
                   <Activity size={16} className="text-blue-600" />
                   <span>
                     <strong>Assigned By:</strong>{" "}
-                    {a.createdBy?.firstName} {a.createdBy?.lastName}
+                    {a.createdBy?.firstName} {a.createdBy?.lastName} { "Ciloy Salamon"}
                   </span>
                 </div>
 

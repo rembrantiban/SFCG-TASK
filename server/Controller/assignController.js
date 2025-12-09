@@ -195,7 +195,8 @@ export const getUserTasks = async (req, res) => {
         },
       })
       .populate("assign", "firstName lastName")
-      .populate("createdBy", "firstName lastName");
+      .populate("createdBy", "firstName lastName")
+      .sort({ createdAt: -1 });
 
     return res.status(200).json({
       success: true,

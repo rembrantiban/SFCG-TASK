@@ -21,9 +21,6 @@ const UserProfile = () => {
     fetchDepartments();
   }, []);
 
-  /* -------------------------
-      LOAD USER
-  -------------------------- */
   const fetchUser = async () => {
     try {
       const res = await axiosInstance.get(`/auth/getuser/${userId}`);
