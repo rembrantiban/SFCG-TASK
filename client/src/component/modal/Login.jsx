@@ -8,7 +8,6 @@ export function Login() {
   const [openModal, setOpenModal] = useState(false);
   const [userName, setUserName] = useState("");
   const [password, setPassword] = useState("");
-  const [disableButton, setDisableButton] = useState(true);
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
@@ -18,32 +17,35 @@ export function Login() {
     setOpenModal(false);
     setUserName("");
     setPassword("");
-    setDisableButton(true);
     setLoading(false);
+    setShowPassword(false);
   };
 
   const handleLogin = async (e) => {
     e.preventDefault();
+    if (loading) return;
+
     setLoading(true);
 
     try {
-      const res = await axiosInstance.post("/auth/login", { userName, password });
+      const res = await axiosInstance.post("/auth/login", {
+        userName,
+        password,
+      });
 
       if (res.data.success) {
-       const { _id, firstName, lastName, role, department, userName } = res.data.user;
+        const { _id, firstName, lastName, role, department, userName } =
+          res.data.user;
 
-          console.log("LOGIN USER _id:", _id);
-
-          localStorage.setItem("token", res.data.token);
-          localStorage.setItem("userId", _id);
-          localStorage.setItem("userFirstName", firstName);
-          localStorage.setItem("userLastName", lastName);
-          localStorage.setItem("userName", userName);
-          localStorage.setItem("userRole", role);
-          localStorage.setItem("userDepart", department);
+        localStorage.setItem("token", res.data.token);
+        localStorage.setItem("userId", _id);
+        localStorage.setItem("userFirstName", firstName);
+        localStorage.setItem("userLastName", lastName);
+        localStorage.setItem("userName", userName);
+        localStorage.setItem("userRole", role);
+        localStorage.setItem("userDepart", department);
 
         toast.success("Login successful!");
-
         onCloseModal();
 
         if (role === "Admin") navigate("/dashboard");
@@ -59,6 +61,8 @@ export function Login() {
       setLoading(false);
     }
   };
+
+  const isFormValid = userName.trim() !== "" && password.trim() !== "";
 
   return (
     <>
@@ -137,30 +141,26 @@ export function Login() {
                 </div>
               </div>
 
-              {/* REMEMBER ME */}
-              <div className="flex items-center gap-2 text-sm">
-                <input
-                  type="checkbox"
-                  onChange={(e) => setDisableButton(!e.target.checked)}
-                  className="w-4 h-4 cursor-pointer"
-                />
-                <span className="text-gray-800">Remember me</span>
-              </div>
-
               {/* LOGIN BUTTON */}
               <button
                 type="submit"
-                disabled={disableButton || loading}
+                disabled={!isFormValid || loading}
                 className={`w-full py-2 rounded-md text-white font-semibold shadow-md
                 transition flex items-center justify-center gap-2
-                ${
-                  disableButton || loading
+                ${!isFormValid || loading
                     ? "bg-gray-400 cursor-not-allowed"
                     : "bg-teal-700 hover:bg-teal-800"
-                }`}
+                  }`}
               >
-                {loading ? "Logging in..." : <><LogIn size={18} /> Log in</>}
+                {loading ? (
+                  <span className="animate-spin w-5 h-5 border-2 border-white border-t-transparent rounded-full"></span>
+                ) : (
+                  <>
+                    <LogIn size={18} /> Log in
+                  </>
+                )}
               </button>
+
 
               {/* REGISTER LINK */}
               <p className="text-center text-sm text-gray-700 mt-3">

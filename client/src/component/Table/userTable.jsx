@@ -20,7 +20,6 @@ const UserTable = () => {
   const [staff, setStaff] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
-  const [totalHr, setTotalHr] = useState(0);
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [selectedUser, setSelectedUser] = useState(null);
   const [viewOpen, setViewOpen] = useState(false);
@@ -92,7 +91,6 @@ const UserTable = () => {
 
 
 
-  const totalEmployees = staff.length;
   const totalStaffCount = staff.filter(
   (u) => u.role?.toLowerCase() !== "admin" && u.role?.toLowerCase() !== "hr"
 ).length;
@@ -254,7 +252,7 @@ const UserTable = () => {
                         : "bg-red-100 text-red-700"
                         }`}
                     >
-                      {user.isApproved ? "Activate" : "Deactivate"}
+                      {user.isApproved ? "Active" : "Deactivate"}
                     </span>
 
                     <button
@@ -278,7 +276,7 @@ const UserTable = () => {
                         : "bg-green-500 hover:bg-green-600"
                         }`}
                     >
-                      {user.isApproved ? "Deactivate" : "Activate"}
+                      {user.isApproved ? "Deactivate" : "Active"}
                     </button>
                   </td>
 
