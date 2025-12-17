@@ -12,6 +12,14 @@ const StaffHeader = ({ name = "Staff" }) => {
     navigate("/");
   };
 
+  const userCategories = JSON.parse(
+  localStorage.getItem("userCategories") || "[]"
+);
+
+const isTeacher = userCategories.some((cat) =>
+  /^teacher(s)?$/i.test(cat)
+);
+
   return (
     <div className="w-full bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 shadow-md border border-gray-700/60 px-6 py-3 text-white">
 
@@ -62,7 +70,9 @@ const StaffHeader = ({ name = "Staff" }) => {
       {/* Desktop Menu */}
       <div className="hidden sm:grid grid-cols-4 gap-3">
         <ActionCard iconBg="bg-purple-500" icon={<LayoutDashboard size={18} />} link="/staffdashboard" text="Dashboard" />
-        <ActionCard iconBg="bg-amber-500" icon={<ClipboardList size={18} />} link="/todowork" text="To-Do Work" />
+        { isTeacher && (
+          <ActionCard iconBg="bg-amber-500" icon={<ClipboardList size={18} />} link="/todowork" text="To-Do Work" />
+        )}
         <ActionCard iconBg="bg-green-500" icon={<Eye size={18} />} link="/userRequest" text="View Request" />
         <ActionCard iconBg="bg-blue-500" icon={<UserRoundMinus size={18} />} link="/user/profile" text="Profile" />
 

@@ -19,34 +19,33 @@ const WorkOrderRequestModal = ({ isOpen, onClose }) => {
 
   const userId = localStorage.getItem("userId");
 
- useEffect(() => {
-  const loadDepartments = async () => {
-    try {
-      const res = await axiosInstance.get(
-        "/department/getallnonteacherdepartments"
-      );
+  useEffect(() => {
+    const loadDepartments = async () => {
+      try {
+        const res = await axiosInstance.get(
+          "/department/getallnonteacherdepartments"
+        );
 
-      const departments = res.data.departments || [];
-      setDepartmentList(departments);
+        const departments = res.data.departments || [];
+        setDepartmentList(departments);
 
-      const allCategories = departments.flatMap(
-        (dept) => dept.categories || []
-      );
+        const categories = [
+          ...new Set(
+            departments
+              .flatMap((dept) => dept.categories || [])
+              .filter((cat) => !/^teacher(s)?$/i.test(cat))
+          ),
+        ];
 
-      const filteredCategories = allCategories.filter(
-        (cat) => !/^teacher(s)?$/i.test(cat)
-      );
+        setCategoryList(categories);
+      } catch (err) {
+        console.error("Failed to load departments:", err);
+      }
+    };
 
-      const uniqueCategories = [...new Set(filteredCategories)];
+    loadDepartments();
+  }, []);
 
-      setCategoryList(uniqueCategories);
-    } catch (err) {
-      console.error("Failed to load departments:", err);
-    }
-  };
-
-  loadDepartments();
-}, []);
 
 
 
@@ -160,13 +159,20 @@ const WorkOrderRequestModal = ({ isOpen, onClose }) => {
                 onChange={(e) => setFormData({ ...formData, category: e.target.value })}
               >
                 <option value="" disabled>Select Category</option>
-                {categoryList.map((cat, index) => (
-                  <option key={index} value={cat}>
-                    {cat}
-                  </option>
+                {departmentList.map((dept) => (
+                  <optgroup key={dept._id} label={dept.departmentName}>
+                    {dept.categories
+                      .filter((cat) => !/^teacher(s)?$/i.test(cat))
+                      .map((cat) => (
+                        <option key={cat} value={cat}>
+                          {cat}
+                        </option>
+                      ))}
+                  </optgroup>
                 ))}
 
               </select>
+
             </div>
 
 

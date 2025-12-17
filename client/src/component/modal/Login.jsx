@@ -44,6 +44,7 @@ export function Login() {
         localStorage.setItem("userName", userName);
         localStorage.setItem("userRole", role);
         localStorage.setItem("userDepart", department);
+        localStorage.setItem("userCategories", JSON.stringify(res.data.user.categories || []));
 
         toast.success("Login successful!");
         onCloseModal();
