@@ -19,26 +19,37 @@ const WorkOrderRequestModal = ({ isOpen, onClose }) => {
 
   const userId = localStorage.getItem("userId");
 
-  useEffect(() => {
-    const loadDepartments = async () => {
-      try {
-        const res = await axiosInstance.get("/department/getalldepartment");
-        setDepartmentList(res.data.departments);
+ useEffect(() => {
+  const loadDepartments = async () => {
+    try {
+      const res = await axiosInstance.get(
+        "/department/getallnonteacherdepartments"
+      );
 
-        const userDepartment = localStorage.getItem("userDepart");
+      const departments = res.data.departments || [];
+      setDepartmentList(departments);
 
-        const matched = res.data.departments.find(
-          (d) => d.departmentName === userDepartment
-        );
+      const allCategories = departments.flatMap(
+        (dept) => dept.categories || []
+      );
 
-        setCategoryList(matched?.categories || []);
-      } catch (err) {
-        console.error(err);
-      }
-    };
+      const filteredCategories = allCategories.filter(
+        (cat) => !/^teacher(s)?$/i.test(cat)
+      );
 
-    loadDepartments();
-  }, []);
+      const uniqueCategories = [...new Set(filteredCategories)];
+
+      setCategoryList(uniqueCategories);
+    } catch (err) {
+      console.error("Failed to load departments:", err);
+    }
+  };
+
+  loadDepartments();
+}, []);
+
+
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -148,13 +159,13 @@ const WorkOrderRequestModal = ({ isOpen, onClose }) => {
                 value={formData.category}
                 onChange={(e) => setFormData({ ...formData, category: e.target.value })}
               >
-                <option value="">Select Category</option>
-
+                <option value="" disabled>Select Category</option>
                 {categoryList.map((cat, index) => (
                   <option key={index} value={cat}>
                     {cat}
                   </option>
                 ))}
+
               </select>
             </div>
 

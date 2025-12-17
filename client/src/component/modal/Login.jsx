@@ -141,7 +141,7 @@ export function Login() {
                 </div>
               </div>
 
-              {/* LOGIN BUTTON */}
+              {/* LOGIN BUTTON */}  
               <button
                 type="submit"
                 disabled={!isFormValid || loading}
@@ -153,7 +153,7 @@ export function Login() {
                   }`}
               >
                 {loading ? (
-                  <span className="animate-spin w-5 h-5 border-2 border-white border-t-transparent rounded-full"></span>
+                  <span className="animate-spin w-6 h-6 border-2 border-white border-t-transparent rounded-full"></span>
                 ) : (
                   <>
                     <LogIn size={18} /> Log in

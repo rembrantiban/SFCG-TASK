@@ -44,9 +44,8 @@ const RecordTable = () => {
     filtered = filtered.filter((r) => {
       const term = search.toLowerCase();
       const title = r.requestId?.taskType?.toLowerCase() || "";
-      const assigned = `${r.assign?.firstName || ""} ${
-        r.assign?.lastName || ""
-      }`.toLowerCase();
+      const assigned = `${r.assign?.firstName || ""} ${r.assign?.lastName || ""
+        }`.toLowerCase();
       return title.includes(term) || assigned.includes(term);
     });
 
@@ -80,7 +79,7 @@ const RecordTable = () => {
     <ArrowUpDown size={14} className="inline ml-1 text-gray-500" />
   );
 
-   const latestRecord = filteredRecords[0] || null;
+  const latestRecord = filteredRecords[0] || null;
 
   return (
     <div className="p-4">
@@ -137,20 +136,36 @@ const RecordTable = () => {
           </thead>
 
           <tbody>
-            {filteredRecords.map((r) => (
-              <tr key={r._id} className="">
-                <td className="px-4  relative left-15 py-2">{r.requestId?.taskType}</td>
-                <td className="px-4  relative left-15 py-2">{r.assign?.firstName} {r.assign?.lastName}</td>
-                <td className="px-4 relative left-10 py-2">{r.status}</td>
-                <td className=" relative left-20 py-2">{new Date(r.updatedAt).toLocaleDateString()}</td>
-                <td className="px-4  relative left-5  py-2">
-                  <button className="text-blue-600" onClick={() => setSelectedRecord(r)}>
-                    <Eye size={16} className="inline" /> View
-                  </button>
+            {filteredRecords.length === 0 ? (
+              <tr>
+                <td colSpan={5} className="py-6 text-center text-gray-500 italic">
+                  No records found.
                 </td>
               </tr>
-            ))}
+            ) : (
+              filteredRecords.map((r) => (
+                <tr key={r._id} className="border-b hover:bg-gray-50">
+                  <td className="px-4 py-2">{r.requestId?.taskType}</td>
+                  <td className="px-4 py-2">
+                    {r.assign?.firstName} {r.assign?.lastName}
+                  </td>
+                  <td className="px-4 py-2">{r.status}</td>
+                  <td className="px-4 py-2">
+                    {new Date(r.updatedAt).toLocaleDateString()}
+                  </td>
+                  <td className="px-4 py-2">
+                    <button
+                      className="text-blue-600"
+                      onClick={() => setSelectedRecord(r)}
+                    >
+                      <Eye size={16} className="inline" /> View
+                    </button>
+                  </td>
+                </tr>
+              ))
+            )}
           </tbody>
+
         </table>
 
       </div>
@@ -158,7 +173,7 @@ const RecordTable = () => {
 
       <div ref={printRef} className="hidden print:block mx-auto w-[210mm] min-h-[297mm] p-5 bg-white text-black border border-black">
 
-       
+
         <div className="flex justify-between items-center">
           <div className="flex items-center gap-3">
             <img src="/sfcg.png" className="h-12 w-12" />
@@ -212,116 +227,116 @@ const RecordTable = () => {
           </tbody>
         </table>
 
-       <div className="mt-10 flex gap-16 text-[11px]">
-<div>
-    <div>Noted by:</div>
-    <div className="mt-2 border-b border-black w-40 text-center">
-      {latestRecord?.requestId?.notedBy
-        ? `${latestRecord.requestId.notedBy.firstName} ${latestRecord.requestId.notedBy.lastName}`
-        : ""}
-    </div>
-  </div>
-
-  <div>
-    <div>Approved by:</div>
-    <div className="mt-2 border-b border-black w-40 text-center">
-      {latestRecord?.requestId?.approvedBy
-        ? `${latestRecord.requestId.approvedBy.firstName} ${latestRecord.requestId.approvedBy.lastName}`
-        : ""}
-    </div>
-  </div>
-
-</div>
-
-      </div>
-
-{selectedRecord && (
-  <div className="no-print fixed z-40 inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4 animate-fadeIn">
-    
-    <div className="bg-white w-full max-w-lg rounded-2xl shadow-2xl relative overflow-hidden animate-scaleIn">
-      
-      <div className="flex items-center justify-between p-5 border-b">
-        <h3 className="text-xl font-semibold flex items-center gap-2">
-          <Eye size={20} className="text-blue-600" />
-          Request Details
-        </h3>
-
-        <button
-          onClick={() => setSelectedRecord(null)}
-          className="text-gray-500 hover:text-red-600 transition"
-        >
-          <X size={22} />
-        </button>
-      </div>
-
-      <div className="p-5 space-y-4 text-sm">
-        <div className="space-y-1">
-          <p className="font-medium text-gray-700">Request Type</p>
-          <div className="p-2 bg-gray-100 rounded text-gray-800">
-            {selectedRecord?.requestId?.taskType}
-          </div>
-        </div>
-
-        <div className="space-y-1">
-          <p className="font-medium text-gray-700">Category</p>
-          <div className="p-2 bg-gray-100 rounded text-gray-800">
-            {selectedRecord?.requestId?.category}
-          </div>
-        </div>
-
-        <div className="space-y-1">
-          <p className="font-medium text-gray-700">Urgency</p>
-          <div className="p-2 bg-gray-100 rounded text-gray-800">
-            {selectedRecord?.requestId?.urgency}
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div className="mt-10 flex gap-16 text-[11px]">
           <div>
-            <p className="font-medium text-gray-700">Requested By</p>
-            <div className="p-2 bg-gray-100 rounded text-gray-800">
-              {selectedRecord?.requestId?.requestedBy?.firstName}{" "}
-              {selectedRecord?.requestId?.requestedBy?.lastName}
+            <div>Noted by:</div>
+            <div className="mt-2 border-b border-black w-40 text-center">
+              {latestRecord?.requestId?.notedBy
+                ? `${latestRecord.requestId.notedBy.firstName} ${latestRecord.requestId.notedBy.lastName}`
+                : ""}
             </div>
           </div>
 
           <div>
-            <p className="font-medium text-gray-700">Assigned Staff</p>
-            <div className="p-2 bg-gray-100 rounded text-gray-800">
-              {selectedRecord?.assign?.firstName}{" "}
-              {selectedRecord?.assign?.lastName}
+            <div>Approved by:</div>
+            <div className="mt-2 border-b border-black w-40 text-center">
+              {latestRecord?.requestId?.approvedBy
+                ? `${latestRecord.requestId.approvedBy.firstName} ${latestRecord.requestId.approvedBy.lastName}`
+                : ""}
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+      {selectedRecord && (
+        <div className="no-print fixed z-40 inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4 animate-fadeIn">
+
+          <div className="bg-white w-full max-w-lg rounded-2xl shadow-2xl relative overflow-hidden animate-scaleIn">
+
+            <div className="flex items-center justify-between p-5 border-b">
+              <h3 className="text-xl font-semibold flex items-center gap-2">
+                <Eye size={20} className="text-blue-600" />
+                Request Details
+              </h3>
+
+              <button
+                onClick={() => setSelectedRecord(null)}
+                className="text-gray-500 hover:text-red-600 transition"
+              >
+                <X size={22} />
+              </button>
+            </div>
+
+            <div className="p-5 space-y-4 text-sm">
+              <div className="space-y-1">
+                <p className="font-medium text-gray-700">Request Type</p>
+                <div className="p-2 bg-gray-100 rounded text-gray-800">
+                  {selectedRecord?.requestId?.taskType}
+                </div>
+              </div>
+
+              <div className="space-y-1">
+                <p className="font-medium text-gray-700">Category</p>
+                <div className="p-2 bg-gray-100 rounded text-gray-800">
+                  {selectedRecord?.requestId?.category}
+                </div>
+              </div>
+
+              <div className="space-y-1">
+                <p className="font-medium text-gray-700">Urgency</p>
+                <div className="p-2 bg-gray-100 rounded text-gray-800">
+                  {selectedRecord?.requestId?.urgency}
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <p className="font-medium text-gray-700">Requested By</p>
+                  <div className="p-2 bg-gray-100 rounded text-gray-800">
+                    {selectedRecord?.requestId?.requestedBy?.firstName}{" "}
+                    {selectedRecord?.requestId?.requestedBy?.lastName}
+                  </div>
+                </div>
+
+                <div>
+                  <p className="font-medium text-gray-700">Assigned Staff</p>
+                  <div className="p-2 bg-gray-100 rounded text-gray-800">
+                    {selectedRecord?.assign?.firstName}{" "}
+                    {selectedRecord?.assign?.lastName}
+                  </div>
+                </div>
+              </div>
+
+              <div className="space-y-1">
+                <p className="font-medium text-gray-700">Date Completed</p>
+                <div className="p-2 bg-gray-100 rounded text-gray-800">
+                  {new Date(selectedRecord?.updatedAt).toLocaleString()}
+                </div>
+              </div>
+
+              {/* DETAILS SECTION */}
+              <div className="space-y-1">
+                <p className="font-medium text-gray-700">Details</p>
+                <div className="p-3 bg-gray-100 rounded text-gray-800 leading-relaxed">
+                  {selectedRecord?.requestId?.requestDetails}
+                </div>
+              </div>
+            </div>
+
+            {/* FOOTER */}
+            <div className="p-4 text-right border-t">
+              <button
+                onClick={() => setSelectedRecord(null)}
+                className="px-4 py-2 bg-blue-600 text-white rounded-lg shadow hover:bg-blue-700 transition"
+              >
+                Close
+              </button>
             </div>
           </div>
         </div>
-
-        <div className="space-y-1">
-          <p className="font-medium text-gray-700">Date Completed</p>
-          <div className="p-2 bg-gray-100 rounded text-gray-800">
-            {new Date(selectedRecord?.updatedAt).toLocaleString()}
-          </div>
-        </div>
-
-        {/* DETAILS SECTION */}
-        <div className="space-y-1">
-          <p className="font-medium text-gray-700">Details</p>
-          <div className="p-3 bg-gray-100 rounded text-gray-800 leading-relaxed">
-            {selectedRecord?.requestId?.requestDetails}
-          </div>
-        </div>
-      </div>
-
-      {/* FOOTER */}
-      <div className="p-4 text-right border-t">
-        <button
-          onClick={() => setSelectedRecord(null)}
-          className="px-4 py-2 bg-blue-600 text-white rounded-lg shadow hover:bg-blue-700 transition"
-        >
-          Close
-        </button>
-      </div>
-    </div>
-  </div>
-)}
+      )}
 
     </div>
   );
