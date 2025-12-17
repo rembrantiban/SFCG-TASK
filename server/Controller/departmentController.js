@@ -38,6 +38,26 @@ export const getAllDepartments = async (req, res) => {
   }
 };
 
+export const getAllNonTeacherDepartments = async (req, res) => {
+  try {
+    const departments = await DepartmentModel.find({
+      categories: {
+        $not: { $regex: /^teacher(s)?$/i }
+      }
+    }).sort({ createdAt: -1 });
+
+    return res.status(200).json({
+      success: true,
+      message: "Departments fetched successfully",
+      departments,
+    });
+  } catch (error) {
+    console.error("Get Departments Error:", error);
+    return res.status(500).json({ success: false, message: "Server error" });
+  }
+};
+
+
 export const updateDepartment = async (req, res) => {
   try {
     const { id } = req.params;

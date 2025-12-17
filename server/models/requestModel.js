@@ -11,7 +11,6 @@ const requestSchema = new mongoose.Schema(
 
     category: {
       type: String,
-      enum: ["Carpentry", "Electrical", "Painting", "Plumbing", "Others"],
       required: true,
     },
 
