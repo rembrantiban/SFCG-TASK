@@ -89,7 +89,7 @@ const isTeacher = userCategories.some((cat) =>
           >
             <ActionCard iconBg="bg-purple-500" icon={<LayoutDashboard size={18} />} link="/staffdashboard" text="Dashboard" full />
             <ActionCard iconBg="bg-amber-500" icon={<ClipboardList size={18} />} link="/todowork" text="To-Do Work" full />
-            <ActionCard iconBg="bg-green-500" icon={<Eye size={18} />} link="/staff/request/view" text="View Request" full />
+            <ActionCard iconBg="bg-green-500" icon={<Eye size={18} />} link="/staff/userRequest" text="View Request" full />
             <ActionCard iconBg="bg-blue-500" icon={<UserRoundMinus size={18} />} link="/user/profile  " text="Profile" full />
 
             <motion.div
